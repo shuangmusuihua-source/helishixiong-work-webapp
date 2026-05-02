@@ -28,7 +28,7 @@ interface WizardState {
   setStep: (step: number) => void;
   setInput: (type: InputType, content: string) => void;
   setSearchEnabled: (enabled: boolean) => void;
-  setOutline: (outline: Outline) => void;
+  setOutline: (outline: Outline | null) => void;
   setGeneratingOutline: (generating: boolean) => void;
   setTheme: (themeId: string) => void;
   setGenerating: (generating: boolean) => void;
