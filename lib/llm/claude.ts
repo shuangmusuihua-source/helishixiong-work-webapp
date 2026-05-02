@@ -4,7 +4,10 @@ import type { Outline, PlanRequest } from '@/types';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
+  baseURL: process.env.ANTHROPIC_BASE_URL,
 });
+
+const MODEL_ID = process.env.ANTHROPIC_MODEL_ID || 'astron-code-latest';
 
 export async function generateOutline(
   request: PlanRequest
@@ -19,7 +22,7 @@ export async function generateOutline(
   ];
 
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: MODEL_ID,
     max_tokens: 4096,
     system: PLAN_OUTLINE_PROMPT,
     messages,
@@ -59,7 +62,7 @@ export async function generatePageContent(
   context: string
 ): Promise<Record<string, unknown>> {
   const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: MODEL_ID,
     max_tokens: 2048,
     system: GENERATE_CONTENT_PROMPT,
     messages: [
