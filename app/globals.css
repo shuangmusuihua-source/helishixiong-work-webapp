@@ -122,9 +122,31 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
   html {
     @apply font-sans;
+  }
+  :root {
+    --sidebar-width: 280px;
+    --header-height: 64px;
+  }
+}
+
+@layer components {
+  .wizard-container {
+    @apply flex min-h-screen;
+  }
+
+  .sidebar {
+    @apply w-[var(--sidebar-width)] border-r bg-muted/30 flex-shrink-0;
+  }
+
+  .main-content {
+    @apply flex-1 overflow-auto;
+  }
+
+  .step-content {
+    @apply p-8 max-w-4xl mx-auto;
   }
 }
