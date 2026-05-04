@@ -1,6 +1,7 @@
 'use client';
 
 import { useWizardStore } from '@/store/useWizardStore';
+import { ModeSelectStep } from '@/components/wizard/ModeSelectStep';
 import { InputStep } from '@/components/wizard/InputStep';
 import { OutlineStep } from '@/components/wizard/OutlineStep';
 import { ThemeStep } from '@/components/wizard/ThemeStep';
@@ -12,6 +13,8 @@ export function MainContent() {
 
   const renderStep = () => {
     switch (currentStep) {
+      case 0:
+        return <ModeSelectStep />;
       case 1:
         return <InputStep />;
       case 2:
@@ -23,13 +26,22 @@ export function MainContent() {
       case 5:
         return <ExportStep />;
       default:
-        return <InputStep />;
+        return <ModeSelectStep />;
     }
   };
 
+  // 生成步骤不需要额外滚动容器
+  const needsScroll = currentStep !== 4 && currentStep !== 5;
+
   return (
     <main className="main-content">
-      {renderStep()}
+      {needsScroll ? (
+        <div className="h-full overflow-y-auto">
+          {renderStep()}
+        </div>
+      ) : (
+        renderStep()
+      )}
     </main>
   );
 }
