@@ -4,8 +4,17 @@ export type InputType = 'topic' | 'text' | 'file';
 // 页面类型
 export type PageType = 'cover' | 'content' | 'end';
 
-// 内容类型
-export type ContentType = 'data' | 'comparison' | 'timeline' | 'architecture' | 'quote' | 'list' | 'paragraph';
+// 内容类型 - 9 种
+export type ContentType =
+  | 'data-cards'
+  | 'data-chart'
+  | 'comparison-feature'
+  | 'comparison-table'
+  | 'timeline'
+  | 'architecture'
+  | 'quote'
+  | 'list'
+  | 'paragraph';
 
 // 封面页数据
 export interface CoverSlide {
@@ -30,6 +39,8 @@ export interface ContentSlide {
 export interface EndSlide {
   page_type: 'end';
   title?: string;
+  author?: string;
+  date?: string;
 }
 
 // 幻灯片联合类型
@@ -41,19 +52,43 @@ export interface Outline {
   slides: Slide[];
 }
 
-// 数据类型内容
-export interface DataContent {
+// 数据卡片内容
+export interface DataCardsContent {
+  items: {
+    label: string;
+    value: string | number;
+    unit?: string;
+    insight?: string;
+    icon?: string;
+  }[];
+}
+
+// 数据图表内容
+export interface DataChartContent {
   chart_type: 'bar' | 'line' | 'pie' | 'radar';
   data: {
     labels: string[];
     values: number[];
     unit?: string;
   };
-  insights?: string[];
+  info?: {
+    title: string;
+    items: string[];
+  };
 }
 
-// 对比类型内容
-export interface ComparisonContent {
+// 特点对比内容
+export interface ComparisonFeatureContent {
+  subjects: [string, string];
+  items: {
+    subject1_feature: string;
+    subject2_feature: string;
+  }[];
+  conclusion?: string;
+}
+
+// 表格对比内容
+export interface ComparisonTableContent {
   subjects: string[];
   metrics: {
     name: string;
@@ -76,7 +111,12 @@ export interface TimelineContent {
 export interface ArchitectureContent {
   layers: {
     name: string;
-    items: string[];
+    icon?: string;
+    items: {
+      label: string;
+      icon?: string;
+      children?: { label: string; icon?: string }[];
+    }[];
   }[];
 }
 
@@ -103,7 +143,17 @@ export interface ParagraphContent {
 }
 
 // 内容联合类型
-export type SlideContent = DataContent | ComparisonContent | TimelineContent | ArchitectureContent | QuoteContent | ListContent | ParagraphContent | Record<string, unknown>;
+export type SlideContent =
+  | DataCardsContent
+  | DataChartContent
+  | ComparisonFeatureContent
+  | ComparisonTableContent
+  | TimelineContent
+  | ArchitectureContent
+  | QuoteContent
+  | ListContent
+  | ParagraphContent
+  | Record<string, unknown>;
 
 // 主题配置
 export interface ThemeConfig {
@@ -150,4 +200,43 @@ export interface GeneratePageEvent {
 export interface GenerateCompleteEvent {
   file_id: string;
   page_count: number;
+}
+
+// 工作模式
+export type WorkMode = 'template' | 'advanced';
+
+// 文字密度
+export type TextDensity = 'minimal' | 'light' | 'standard' | 'dense';
+
+// 动画程度
+export type MotionLevel = 'static' | 'subtle' | 'rich';
+
+// 高级模式主题
+export type AdvancedTheme = 'neon-terminal' | 'paper-press' | 'editorial-noir';
+
+// 设计系统（简化版，用于高级模式）
+export interface DesignSystem {
+  palette: {
+    background: string;
+    foreground: string;
+    primary: string;
+    secondary: string;
+    accent: string;
+    muted: string;
+  };
+  fonts: {
+    heading: string;
+    body: string;
+    mono: string;
+  };
+  typeScale: {
+    xs: string;
+    sm: string;
+    base: string;
+    lg: string;
+    xl: string;
+    '2xl': string;
+    '3xl': string;
+  };
+  radius: string;
 }
