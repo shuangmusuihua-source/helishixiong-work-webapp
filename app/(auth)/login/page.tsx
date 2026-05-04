@@ -70,8 +70,8 @@ export default function LoginPage() {
         return;
       }
 
-      // 登录成功，跳转到首页
-      router.push('/');
+      // 登录成功，跳转到项目列表
+      router.push('/projects');
     } catch {
       setError('登录失败');
     } finally {

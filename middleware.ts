@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// 公开路径
+// 公开路径（不需要认证）
 const publicPaths = ['/', '/login', '/register', '/api/auth'];
 
 // 需要认证的路径
@@ -10,30 +10,33 @@ const protectedPaths = ['/projects', '/create', '/profile'];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // 获取 session cookie
+  const token = request.cookies.get('kami_session')?.value;
+
   // 检查是否是公开路径
   const isPublic = publicPaths.some((path) =>
     pathname === path || pathname.startsWith(`${path}/`)
   );
 
+  // 如果是公开路径，直接放行
+  if (isPublic) {
+    return NextResponse.next();
+  }
+
   // API 路径（除了 auth）需要认证
   const isApiPath = pathname.startsWith('/api');
   const isAuthApi = pathname.startsWith('/api/auth');
 
-  // 获取 session cookie
-  const token = request.cookies.get('kami_session')?.value;
-
-  // 如果没有 token 且访问需要认证的路径
+  // 如果没有 token
   if (!token) {
-    // 检查是否是受保护的路径
-    const isProtected = protectedPaths.some((path) =>
-      pathname === path || pathname.startsWith(`${path}/`)
-    );
-
-    if (isProtected || (isApiPath && !isAuthApi)) {
-      // 重定向到登录页
-      const loginUrl = new URL('/login', request.url);
-      return NextResponse.redirect(loginUrl);
+    // API 返回 401
+    if (isApiPath && !isAuthApi) {
+      return NextResponse.json({ error: '未登录' }, { status: 401 });
     }
+
+    // 页面重定向到登录页
+    const loginUrl = new URL('/login', request.url);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();
