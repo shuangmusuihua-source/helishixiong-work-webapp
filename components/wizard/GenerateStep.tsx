@@ -8,6 +8,7 @@ import { Loader2, CheckCircle2, Sparkles, ArrowLeft, ArrowRight } from 'lucide-r
 import { SSE_EVENT_TYPES } from '@/lib/utils';
 import { PreviewLayout } from '@/components/preview';
 import { PresenterMode } from '@/components/preview/presenter/PresenterMode';
+import { cn } from '@/lib/utils';
 
 export function GenerateStep() {
   const {
@@ -165,162 +166,80 @@ export function GenerateStep() {
   const isActivelyGenerating = isGenerating || (slidePages.length === 0 && !error);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        height: '100%',
-        width: '100%',
-      }}
-    >
+    <div className="flex h-full w-full">
       {/* 左侧面板 */}
-      <div
-        style={{
-          width: '320px',
-          height: '100%',
-          overflow: 'hidden auto',
-          flexShrink: 0,
-          padding: '1.25rem',
-          background: 'rgba(255, 255, 255, 0.4)',
-          borderRight: '1px solid rgba(217, 224, 220, 1)',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
+      <div className="w-80 h-full overflow-y-auto flex-shrink-0 p-5 bg-sidebar/40 border-r border-border/50 flex flex-col">
         {/* 标题 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
+        <div className="flex items-center gap-2 mb-5">
           <Sparkles className="h-5 w-5 text-primary" />
-          <h2 style={{ fontSize: '1.125rem', fontWeight: 600 }}>生成预览</h2>
+          <h2 className="text-lg font-semibold">生成预览</h2>
         </div>
 
         {/* 进度卡片 */}
-        <div
-          style={{
-            background: 'rgba(255, 255, 255, 0.85)',
-            backdropFilter: 'blur(16px)',
-            borderRadius: '16px',
-            boxShadow: '0 2px 8px rgba(90, 103, 95, 0.08), 0 8px 24px rgba(90, 103, 95, 0.06)',
-            padding: '1rem',
-            marginBottom: '1rem',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+        <div className="glass-card p-4 mb-4">
+          <div className="flex items-center gap-2 mb-3">
             {isActivelyGenerating ? (
               <Loader2 className="h-4 w-4 animate-spin text-primary" />
             ) : (
               <CheckCircle2 className="h-4 w-4 text-primary" />
             )}
-            <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+            <span className="text-sm font-medium">
               {isActivelyGenerating ? '正在生成...' : '生成完成'}
             </span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '0.5rem' }}>
-              {currentPageTitle || '准备中...'}
-            </span>
-            <span style={{ fontWeight: 500 }}>{generatedPages}/{totalPages}</span>
+          <div className="flex justify-between text-xs text-muted-foreground mb-2">
+            <span className="truncate mr-2">{currentPageTitle || '准备中...'}</span>
+            <span className="font-medium">{generatedPages}/{totalPages}</span>
           </div>
-          <Progress value={progress} className="h-1.5" />
+          <Progress value={progress} className="h-1.5 progress-glow" />
         </div>
 
         {/* AI 输出 */}
         {aiStreamingText && (
-          <div
-            style={{
-              background: 'rgba(255, 255, 255, 0.85)',
-              backdropFilter: 'blur(16px)',
-              borderRadius: '8px',
-              boxShadow: '0 1px 4px rgba(90, 103, 95, 0.06)',
-              padding: '0.75rem',
-              marginBottom: '1rem',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+          <div className="glass-card glass-card-sm p-3 mb-4">
+            <div className="flex items-center gap-2 mb-2">
               <Loader2 className="h-3 w-3 animate-spin text-primary" />
-              <span style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--primary)' }}>AI 思考中</span>
+              <span className="text-xs font-medium text-primary">AI 思考中</span>
             </div>
-            <div
-              style={{
-                fontFamily: 'monospace',
-                fontSize: '0.75rem',
-                color: 'var(--muted-foreground)',
-                maxHeight: '5rem',
-                overflowY: 'auto',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-all',
-              }}
-            >
+            <div className="font-mono text-xs text-muted-foreground max-h-20 overflow-y-auto whitespace-pre-wrap break-all">
               {aiStreamingText.slice(-150)}
             </div>
           </div>
         )}
 
         {/* 日志 */}
-        <div style={{ marginBottom: '1rem' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem', display: 'block' }}>
-            生成日志
-          </span>
-          <div
-            style={{
-              background: 'rgba(246, 249, 247, 0.7)',
-              backdropFilter: 'blur(8px)',
-              borderRadius: '8px',
-              boxShadow: 'inset 0 1px 4px rgba(90, 103, 95, 0.06)',
-              padding: '0.75rem',
-              height: '8rem',
-              overflowY: 'auto',
-            }}
-          >
+        <div className="mb-4">
+          <span className="text-xs text-muted-foreground mb-2 block">生成日志</span>
+          <div className="log-area p-3 h-32 overflow-y-auto">
             {displayLogs.map((log, idx) => (
               <div
                 key={idx}
-                style={{
-                  fontSize: '0.75rem',
-                  padding: '0.125rem 0',
-                  color: log.includes('✅') || log.includes('🎉')
-                    ? 'var(--primary)'
-                    : log.includes('❌')
-                    ? 'var(--destructive)'
-                    : 'var(--muted-foreground)',
-                }}
+                className={cn(
+                  'text-xs py-0.5',
+                  log.includes('✅') || log.includes('🎉') ? 'text-primary' :
+                  log.includes('❌') ? 'text-destructive' : 'text-muted-foreground'
+                )}
               >
                 {log}
               </div>
             ))}
             {isActivelyGenerating && (
-              <div className="animate-pulse text-primary" style={{ fontSize: '0.75rem' }}>▊</div>
+              <div className="animate-pulse text-primary text-xs">▊</div>
             )}
           </div>
         </div>
 
         {/* 页面网格 */}
-        <div style={{ marginBottom: '1rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '0.375rem' }}>
+        <div className="mb-4">
+          <div className="grid grid-cols-6 gap-1.5">
             {outline.slides.map((_, idx) => (
               <div
                 key={idx}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '0.75rem',
-                  fontWeight: 500,
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '8px',
-                  background: generatedPages > idx
-                    ? 'rgba(129, 197, 148, 1)'
-                    : generatedPages === idx && isActivelyGenerating
-                    ? 'var(--primary)'
-                    : 'rgba(223, 231, 226, 1)',
-                  color: generatedPages > idx || (generatedPages === idx && isActivelyGenerating)
-                    ? 'white'
-                    : 'rgba(90, 103, 95, 1)',
-                  boxShadow: generatedPages > idx
-                    ? '0 2px 6px rgba(0, 171, 109, 0.2)'
-                    : generatedPages === idx && isActivelyGenerating
-                    ? '0 0 12px rgba(0, 171, 109, 0.4)'
-                    : '0 1px 3px rgba(90, 103, 95, 0.05)',
-                }}
+                className={cn(
+                  'page-grid-item',
+                  generatedPages > idx && 'completed',
+                  generatedPages === idx && isActivelyGenerating && 'active'
+                )}
               >
                 {generatedPages > idx ? '✓' : idx + 1}
               </div>
@@ -329,12 +248,12 @@ export function GenerateStep() {
         </div>
 
         {/* 按钮 */}
-        <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
+        <div className="flex gap-2 mt-auto">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setStep(workMode === 'advanced' ? 4 : 3)}
-            style={{ flex: 1 }}
+            className="flex-1"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             返回
@@ -343,7 +262,7 @@ export function GenerateStep() {
             <Button
               size="sm"
               onClick={() => setStep(workMode === 'advanced' ? 6 : 5)}
-              style={{ flex: 1 }}
+              className="flex-1 btn-primary-glow"
             >
               下一步
               <ArrowRight className="h-4 w-4 ml-1" />
@@ -353,16 +272,7 @@ export function GenerateStep() {
       </div>
 
       {/* 右侧预览 */}
-      <div
-        style={{
-          flex: 1,
-          height: '100%',
-          minWidth: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          background: 'rgba(239, 243, 241, 0.5)',
-        }}
-      >
+      <div className="flex-1 h-full min-w-0 flex flex-col bg-muted/10">
         {showPresenter ? (
           <PresenterMode onExit={() => setShowPresenter(false)} />
         ) : (
