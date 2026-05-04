@@ -1,8 +1,21 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Zap, Wand2, ArrowRight, Play, Layers, Palette, Download, Users, Check } from 'lucide-react';
+import { Sparkles, Zap, Wand2, ArrowRight, Play, Layers, Palette, X } from 'lucide-react';
+import { AuthForm } from '@/components/auth/AuthForm';
 
 export default function LandingPage() {
+  const router = useRouter();
+  const [showAuth, setShowAuth] = useState(false);
+
+  const handleAuthSuccess = () => {
+    setShowAuth(false);
+    router.push('/projects');
+  };
+
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
@@ -39,13 +52,15 @@ export default function LandingPage() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-              <Link href="/login">
-                <Button size="lg" className="text-lg px-10 py-6 rounded-2xl btn-primary-glow h-auto">
-                  <Wand2 className="mr-2 h-5 w-5" />
-                  免费开始
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
+              <Button
+                size="lg"
+                className="text-lg px-10 py-6 rounded-2xl btn-primary-glow h-auto"
+                onClick={() => setShowAuth(true)}
+              >
+                <Wand2 className="mr-2 h-5 w-5" />
+                免费开始
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
               <Button variant="outline" size="lg" className="text-lg px-8 py-6 rounded-2xl h-auto">
                 <Play className="mr-2 h-5 w-5" />
                 观看演示
@@ -70,6 +85,28 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
+
+        {/* Auth Modal */}
+        {showAuth && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowAuth(false)}
+            />
+
+            {/* Modal Content */}
+            <div className="relative">
+              <button
+                onClick={() => setShowAuth(false)}
+                className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <AuthForm onSuccess={handleAuthSuccess} />
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Features Section */}
@@ -177,13 +214,15 @@ export default function LandingPage() {
           <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
             免费使用，无需信用卡，立即体验 AI 幻灯片生成的魅力
           </p>
-          <Link href="/login">
-            <Button size="lg" className="text-lg px-10 py-6 rounded-2xl btn-primary-glow h-auto">
-              <Wand2 className="mr-2 h-5 w-5" />
-              免费开始创作
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
+          <Button
+            size="lg"
+            className="text-lg px-10 py-6 rounded-2xl btn-primary-glow h-auto"
+            onClick={() => setShowAuth(true)}
+          >
+            <Wand2 className="mr-2 h-5 w-5" />
+            免费开始创作
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
         </div>
       </section>
 
