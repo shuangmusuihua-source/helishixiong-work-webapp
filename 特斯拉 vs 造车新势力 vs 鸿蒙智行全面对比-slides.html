@@ -1,13 +1,47 @@
-/* 商务现代黑主题样式 - 新布局结构 v1.7.7 */
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>特斯拉 vs 造车新势力 vs 鸿蒙智行全面对比</title>
+
+  <!-- 图标字体 -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- 图表库 -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+
+  <!-- 动画库 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <!-- 字体 -->
+  <style>
+    @font-face {
+      font-family: 'Alibaba PuHuiTi';
+      src: url('/fonts/AlibabaPuHuiTi-3/AlibabaPuHuiTi-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Alibaba PuHuiTi';
+      src: url('{{FONT_PATH}}AlibabaPuHuiTi-Bold.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+  </style>
+
+  <!-- 主题样式 -->
+  <style>
+    /* 商务现代白主题样式 - 新布局结构 v1.7.7 */
 
 /* 基础变量 */
 :root {
-  --bg-color: #0F172A;
+  --bg-color: #ffffff;
   --primary-color: #10B981;
-  --secondary-color: #94A3B8;
+  --secondary-color: #1E293B;
   --accent-color: #34D399;
-  --text-color: #F1F5F9;
-  --border-color: #334155;
+  --text-color: #0F172A;
+  --border-color: #E2E8F0;
 
   /* 绿色系辅助色 */
   --color-green: #10B981;
@@ -16,23 +50,23 @@
   --color-teal: #14B8A6;
   --color-lime: #84CC16;
 
-  /* 弥散渐变背景色 - 深色版 */
-  --gradient-color-1: rgba(16, 185, 129, 0.15);
-  --gradient-color-2: rgba(52, 211, 153, 0.12);
-  --gradient-color-3: rgba(20, 184, 166, 0.10);
-  --gradient-color-4: rgba(132, 204, 22, 0.08);
+  /* 弥散渐变背景色 */
+  --gradient-color-1: rgba(16, 185, 129, 0.12);
+  --gradient-color-2: rgba(52, 211, 153, 0.10);
+  --gradient-color-3: rgba(20, 184, 166, 0.08);
+  --gradient-color-4: rgba(132, 204, 22, 0.06);
 
-  /* 毛玻璃效果变量 - 深色版 */
-  --glass-bg: rgba(30, 41, 59, 0.6);
+  /* 毛玻璃效果变量 */
+  --glass-bg: rgba(255, 255, 255, 0.25);
   --glass-blur: blur(20px) saturate(180%);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.3);
   --glass-radius: 30px;
   --glass-corner-shape: squircle;
 
   /* 渐变变量 */
   --gradient-primary: linear-gradient(135deg, var(--color-green), var(--color-green-light));
   --gradient-vertical: linear-gradient(180deg, var(--primary-color), var(--accent-color));
-  --gradient-highlight: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(52, 211, 153, 0.2));
+  --gradient-highlight: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(52, 211, 153, 0.12));
 
   /* 圆角变量 */
   --radius-sm: 6px;
@@ -44,7 +78,7 @@
 
   /* 新布局参数 */
   --slide-padding-h: 2cm;        /* 左右留白 */
-  --slide-padding-v: 0.8cm;        /* 上下留白 */
+  --slide-padding-v: 1cm;        /* 上下留白 */
   --region-gap: 0.2cm;           /* 区域间隔 */
   --region-padding: 0.1cm;       /* 区域内边距 */
 
@@ -146,7 +180,7 @@ body {
   overflow: hidden;
 }
 
-/* 弥散渐变背景 - 四色弥散 深色版 */
+/* 弥散渐变背景 - 四色弥散 */
 .webgl-background {
   position: fixed;
   top: 0;
@@ -160,7 +194,7 @@ body {
     radial-gradient(ellipse at 85% 20%, var(--gradient-color-2) 0%, transparent 50%),
     radial-gradient(ellipse at 20% 80%, var(--gradient-color-3) 0%, transparent 45%),
     radial-gradient(ellipse at 80% 75%, var(--gradient-color-4) 0%, transparent 50%),
-    linear-gradient(180deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
+    linear-gradient(180deg, #FAFBFC 0%, #F8FAFC 50%, #F1F5F9 100%);
 }
 
 /* 幻灯片容器 */
@@ -344,12 +378,37 @@ body {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
   border-radius: var(--glass-radius);
   corner-shape: var(--glass-corner-shape);
   transition: transform 0.3s ease;
   will-change: transform;
   position: relative;
+  border: none;
+}
+
+/* 边缘高光效果 */
+.glass-card::before,
+.data-card::before,
+.chart-chart-card::before,
+.timeline-card::before,
+.feature-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.6) 25%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .glass-card:hover,
@@ -403,7 +462,7 @@ body {
 
 .data-card .card-divider {
   height: 1px;
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.12);
   margin-bottom: 1.125rem;
 }
 
@@ -447,6 +506,12 @@ body {
   color: rgba(255, 255, 255, 0.9);
 }
 
+.data-card .card-divider {
+  height: 1px;
+  background: rgba(16, 185, 129, 0.12);
+  margin-bottom: 1.125rem;
+}
+
 .data-card.highlighted .card-divider {
   background: rgba(255, 255, 255, 0.3);
 }
@@ -486,7 +551,7 @@ body {
 /* 重点信息突出样式 - 绿色系 */
 .highlight-text {
   font-weight: 700;
-  color: var(--color-green-light);
+  color: var(--color-green);
 }
 
 .highlight-bg {
@@ -494,12 +559,12 @@ body {
   padding: 0.1em 0.4em;
   border-radius: var(--radius-sm);
   font-weight: 600;
-  color: var(--color-green-light);
+  color: var(--color-green);
 }
 
 .highlight-bold {
   font-weight: 700;
-  color: var(--color-green-light);
+  color: var(--color-green);
   background: linear-gradient(transparent 60%, rgba(52, 211, 153, 0.35) 60%);
 }
 
@@ -545,7 +610,7 @@ body {
 }
 
 .chart-info-item .key-color {
-  color: var(--color-green-light);
+  color: var(--primary-color);
   font-weight: 600;
 }
 
@@ -553,12 +618,11 @@ body {
   background: var(--gradient-highlight);
   padding: 0.1em 0.4em;
   border-radius: var(--radius-sm);
-  color: var(--color-green-light);
+  color: var(--color-green);
   font-weight: 600;
 }
 
 .chart-chart-card {
-  flex: 1;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -584,7 +648,7 @@ body {
 
 .chart-chart-card .card-divider {
   height: 1px;
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.12);
   margin-bottom: 1rem;
 }
 
@@ -645,14 +709,14 @@ body {
   height: 16px;
   background: var(--color-green);
   border-radius: 50%;
-  border: 3px solid #1E293B;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.4);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
   margin-bottom: 1.5rem;
 }
 
 .timeline-node:first-child .timeline-dot-h {
   background: var(--color-green-dark);
-  box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.5);
+  box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.4);
 }
 
 .timeline-card {
@@ -669,7 +733,7 @@ body {
 .timeline-year-h {
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--color-green-light);
+  color: var(--color-green);
   margin-bottom: 0.5rem;
 }
 
@@ -773,7 +837,7 @@ body {
 
 .feature-card-divider {
   height: 1px;
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.15);
   margin-bottom: 1rem;
 }
 
@@ -787,7 +851,7 @@ body {
   align-items: flex-start;
   gap: 0.6rem;
   padding: 0.6rem 0;
-  border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.08);
 }
 
 .feature-list li:last-child {
@@ -828,7 +892,7 @@ body {
 }
 
 .feature-list .feature-text strong {
-  color: var(--color-green-light);
+  color: var(--color-green);
   font-weight: 600;
 }
 
@@ -881,7 +945,7 @@ body {
 .compare-table td {
   padding: 1rem 1.25rem;
   text-align: left;
-  border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.1);
 }
 
 /* 表头整体背景色 - 绿色系 */
@@ -906,12 +970,12 @@ body {
 }
 
 .compare-table tr:hover td {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(16, 185, 129, 0.06);
 }
 
 .compare-table .company-name {
   font-weight: 600;
-  color: var(--color-green-light);
+  color: var(--color-green);
 }
 
 .compare-table .highlight-cell {
@@ -1049,7 +1113,7 @@ body {
   left: 1.5rem;
   font-size: 4rem;
   font-weight: 700;
-  color: var(--color-green-light);
+  color: var(--color-green);
   opacity: 0.3;
   line-height: 1;
 }
@@ -1094,7 +1158,6 @@ body {
   -webkit-backdrop-filter: var(--glass-blur);
   border-radius: var(--radius-lg);
   corner-shape: var(--glass-corner-shape);
-  border: var(--glass-border);
   padding: 1.25rem 1.5rem;
   flex: 1 1 calc(50% - 0.5rem);
   min-width: 280px;
@@ -1106,6 +1169,28 @@ body {
   transform: translateY(20px);
   animation: list-card-in 0.5s ease forwards;
   position: relative;
+  border: none;
+}
+
+/* 边缘高光效果 */
+.list-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.6) 25%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .list-item:hover {
@@ -1155,7 +1240,7 @@ body {
 
 .list-text .highlight {
   font-weight: 700;
-  color: var(--color-green-light);
+  color: var(--color-green);
 }
 
 /* 项目数 ≤4：横向排列卡片，卡片内上下布局 */
@@ -1197,7 +1282,7 @@ body {
 
 .list-content.layout-horizontal .list-divider {
   height: 1px;
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.15);
   margin: 0 1.25rem;
 }
 
@@ -1290,10 +1375,10 @@ body {
   padding: 1px;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.4) 0%,
-    rgba(255, 255, 255, 0.25) 25%,
-    rgba(255, 255, 255, 0.15) 50%,
-    rgba(255, 255, 255, 0.05) 100%
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.6) 25%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.1) 100%
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -1307,7 +1392,7 @@ body {
   align-items: center;
   gap: 0.4rem;
   padding: 0.4rem 0.75rem;
-  background: rgba(16, 185, 129, 0.15);
+  background: rgba(16, 185, 129, 0.08);
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
   color: var(--text-color);
@@ -1315,13 +1400,13 @@ body {
 }
 
 .arch-item:hover {
-  background: rgba(16, 185, 129, 0.25);
+  background: rgba(16, 185, 129, 0.15);
 }
 
 .arch-item svg {
   width: 14px;
   height: 14px;
-  stroke: var(--color-green-light);
+  stroke: var(--color-green);
 }
 
 .arch-sub-cards {
@@ -1332,7 +1417,7 @@ body {
 }
 
 .arch-sub-card {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(16, 185, 129, 0.06);
   border-radius: var(--radius-md);
   padding: 0;
   flex: 1;
@@ -1344,14 +1429,14 @@ body {
 .arch-sub-title {
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--color-green-light);
+  color: var(--color-green);
   padding: 0.75rem 1rem 0.5rem 1rem;
   text-wrap: balance;
 }
 
 .arch-sub-divider {
   height: 1px;
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.15);
   margin: 0 1rem;
 }
 
@@ -1379,7 +1464,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.85);
   z-index: 1000;
   align-items: center;
   justify-content: center;
@@ -1455,3 +1540,628 @@ body {
     transform: none;
   }
 }
+
+  </style>
+</head>
+<body>
+  <!-- SVG定义clip-path - 特点对比页卡片凹陷 -->
+  <svg width="0" height="0" style="position:absolute;">
+    <defs>
+      <!-- 左卡片裁剪路径 -->
+      <clipPath id="left-card-clip" clipPathUnits="objectBoundingBox">
+        <path d="
+          M 0.0625 0
+          L 0.9375 0
+          Q 1 0, 1 0.0625
+          L 1 0.34
+          C 1 0.37, 0.965 0.41, 0.958 0.45
+          A 0.042 0.08 0 0 0 0.958 0.55
+          C 0.965 0.59, 1 0.63, 1 0.66
+          L 1 0.9375
+          Q 1 1, 0.9375 1
+          L 0.0625 1
+          Q 0 1, 0 0.9375
+          L 0 0.0625
+          Q 0 0, 0.0625 0
+          Z
+        "/>
+      </clipPath>
+
+      <!-- 右卡片裁剪路径 -->
+      <clipPath id="right-card-clip" clipPathUnits="objectBoundingBox">
+        <path d="
+          M 0.9375 0
+          Q 1 0, 1 0.0625
+          L 1 0.9375
+          Q 1 1, 0.9375 1
+          L 0.0625 1
+          Q 0 1, 0 0.9375
+          L 0 0.66
+          C 0 0.63, 0.035 0.59, 0.042 0.55
+          A 0.042 0.08 0 0 0 0.042 0.45
+          C 0.035 0.41, 0 0.37, 0 0.34
+          L 0 0.0625
+          Q 0 0, 0.0625 0
+          Z
+        "/>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <div class="webgl-background"></div>
+
+  <div class="slides-container">
+    
+    <div class="slide cover-slide active">
+      <div class="cover-content">
+        <h1 class="cover-title animate__animated animate__fadeInUp">新能源汽车市场格局全景分析</h1>
+        <p class="cover-subtitle animate__animated animate__fadeInUp animate__delay-1s">特斯拉、造车新势力与鸿蒙智行深度对比</p>
+        <div class="cover-meta animate__animated animate__fadeIn animate__delay-1s">
+          <span class="cover-author">行业研究报告</span>
+          <span class="cover-date">2024年</span>
+        </div>
+      </div>
+    </div>
+  
+
+      <div class="slide content-slide">
+        <div class="title-region">
+          <h2 class="slide-title animate__animated animate__fadeInDown">品牌阵营与代表车型概览</h2>
+        </div>
+        <div class="summary-region">
+          <p class="slide-summary animate__animated animate__fadeIn">介绍三大阵营的核心品牌及市场定位。</p>
+        </div>
+        <div class="content-region">
+          <div class="placeholder-content" style="text-align: center; padding: 40px; color: #666;">
+            <p style="font-size: 18px; margin-bottom: 10px;">📋 内容列表</p>
+            <p style="font-size: 14px;">介绍三大阵营的核心品牌及市场定位。</p>
+          </div>
+        </div>
+        <div class="page-number-region">
+          <span class="page-number">1</span>
+        </div>
+      </div>
+    
+
+    <div class="slide content-slide">
+      <div class="title-region">
+        <h2 class="slide-title animate__animated animate__fadeInDown">核心销量与市场份额对比</h2>
+      </div>
+      <div class="summary-region">
+        <p class="slide-summary animate__animated animate__fadeIn">通过数据展示三大阵营的市场表现差异。</p>
+      </div>
+      <div class="content-region">
+        
+      <div class="placeholder-content" style="text-align: center; padding: 40px; color: #666;">
+        <p style="font-size: 18px; margin-bottom: 10px;">📊 数据图表</p>
+        <p style="font-size: 14px;">通过数据展示三大阵营的市场表现差异。</p>
+      </div>
+    
+        
+      </div>
+      <div class="page-number-region">
+        <span class="page-number">2</span>
+      </div>
+    </div>
+  
+
+      <div class="slide content-slide">
+        <div class="title-region">
+          <h2 class="slide-title animate__animated animate__fadeInDown">智能驾驶技术路线差异</h2>
+        </div>
+        <div class="summary-region">
+          <p class="slide-summary animate__animated animate__fadeIn">对比不同阵营的智驾技术路线与能力边界。</p>
+        </div>
+        <div class="content-region">
+          <div class="placeholder-content" style="text-align: center; padding: 40px; color: #666;">
+            <p style="font-size: 18px; margin-bottom: 10px;">⚖️ 对比分析</p>
+            <p style="font-size: 14px;">对比不同阵营的智驾技术路线与能力边界。</p>
+          </div>
+        </div>
+        <div class="page-number-region">
+          <span class="page-number">3</span>
+        </div>
+      </div>
+    
+
+      <div class="slide content-slide">
+        <div class="title-region">
+          <h2 class="slide-title animate__animated animate__fadeInDown">智能座舱与生态体验</h2>
+        </div>
+        <div class="summary-region">
+          <p class="slide-summary animate__animated animate__fadeIn">座舱智能化程度与生态互联能力的对比。</p>
+        </div>
+        <div class="content-region">
+          <div class="placeholder-content" style="text-align: center; padding: 40px; color: #666;">
+            <p style="font-size: 18px; margin-bottom: 10px;">⚖️ 对比分析</p>
+            <p style="font-size: 14px;">座舱智能化程度与生态互联能力的对比。</p>
+          </div>
+        </div>
+        <div class="page-number-region">
+          <span class="page-number">4</span>
+        </div>
+      </div>
+    
+
+    <div class="slide content-slide">
+      <div class="title-region">
+        <h2 class="slide-title animate__animated animate__fadeInDown">补能体系与基础设施</h2>
+      </div>
+      <div class="summary-region">
+        <p class="slide-summary animate__animated animate__fadeIn">展示各品牌补能网络的布局规模。</p>
+      </div>
+      <div class="content-region">
+        
+      <div class="placeholder-content" style="text-align: center; padding: 40px; color: #666;">
+        <p style="font-size: 18px; margin-bottom: 10px;">📊 数据图表</p>
+        <p style="font-size: 14px;">展示各品牌补能网络的布局规模。</p>
+      </div>
+    
+        
+      </div>
+      <div class="page-number-region">
+        <span class="page-number">5</span>
+      </div>
+    </div>
+  
+
+      <div class="slide content-slide">
+        <div class="title-region">
+          <h2 class="slide-title animate__animated animate__fadeInDown">商业模式与渠道策略</h2>
+        </div>
+        <div class="summary-region">
+          <p class="slide-summary animate__animated animate__fadeIn">分析各阵营的销售模式与商业逻辑。</p>
+        </div>
+        <div class="content-region">
+          <div class="placeholder-content" style="text-align: center; padding: 40px; color: #666;">
+            <p style="font-size: 18px; margin-bottom: 10px;">📋 内容列表</p>
+            <p style="font-size: 14px;">分析各阵营的销售模式与商业逻辑。</p>
+          </div>
+        </div>
+        <div class="page-number-region">
+          <span class="page-number">6</span>
+        </div>
+      </div>
+    
+
+      <div class="slide content-slide">
+        <div class="title-region">
+          <h2 class="slide-title animate__animated animate__fadeInDown">品牌核心竞争力总结</h2>
+        </div>
+        <div class="summary-region">
+          <p class="slide-summary animate__animated animate__fadeIn">提炼各阵营的核心优势与差异化标签。</p>
+        </div>
+        <div class="content-region">
+          <div class="placeholder-content" style="text-align: center; padding: 40px; color: #666;">
+            <p style="font-size: 18px; margin-bottom: 10px;">⚖️ 对比分析</p>
+            <p style="font-size: 14px;">提炼各阵营的核心优势与差异化标签。</p>
+          </div>
+        </div>
+        <div class="page-number-region">
+          <span class="page-number">7</span>
+        </div>
+      </div>
+    
+
+      <div class="slide content-slide">
+        <div class="title-region">
+          <h2 class="slide-title animate__animated animate__fadeInDown">未来发展趋势展望</h2>
+        </div>
+        <div class="summary-region">
+          <p class="slide-summary animate__animated animate__fadeIn">预测新能源汽车市场的未来竞争格局演变。</p>
+        </div>
+        <div class="content-region">
+          <div class="placeholder-content" style="text-align: center; padding: 40px; color: #666;">
+            <p style="font-size: 18px; margin-bottom: 10px;">📋 内容列表</p>
+            <p style="font-size: 14px;">预测新能源汽车市场的未来竞争格局演变。</p>
+          </div>
+        </div>
+        <div class="page-number-region">
+          <span class="page-number">8</span>
+        </div>
+      </div>
+    
+
+    <div class="slide end-slide">
+      <div class="end-content">
+        <h1 class="end-title animate__animated animate__fadeIn">谢谢观看</h1>
+      </div>
+    </div>
+  
+  </div>
+
+  <script>
+    // 图表配置
+    /* 商务现代白主题 ECharts 图表配置 - 清新绿色系配色 */
+
+const chartTheme = {
+  // 颜色方案 - 绿色系
+  color: ['#10B981', '#34D399', '#14B8A6', '#84CC16', '#059669', '#FBBF24'],
+
+  // 背景色
+  backgroundColor: 'transparent',
+
+  // 标题样式
+  title: {
+    textStyle: {
+      color: '#0F172A',
+      fontFamily: 'Alibaba PuHuiTi, sans-serif',
+      fontSize: 16,
+      fontWeight: 600
+    },
+    subtextStyle: {
+      color: '#1E293B',
+      fontFamily: 'Alibaba PuHuiTi, sans-serif',
+      fontSize: 12
+    }
+  },
+
+  // 图例样式
+  legend: {
+    textStyle: {
+      color: '#0F172A',
+      fontFamily: 'Alibaba PuHuiTi, sans-serif',
+      fontSize: 12
+    }
+  },
+
+  // 类目轴样式
+  categoryAxis: {
+    axisLine: {
+      lineStyle: {
+        color: '#E2E8F0'
+      }
+    },
+    axisTick: {
+      lineStyle: {
+        color: '#E2E8F0'
+      }
+    },
+    axisLabel: {
+      color: '#1E293B',
+      fontFamily: 'Alibaba PuHuiTi, sans-serif',
+      fontSize: 11,
+      fontWeight: 500
+    },
+    splitLine: {
+      lineStyle: {
+        color: '#E2E8F0'
+      }
+    }
+  },
+
+  // 数值轴样式
+  valueAxis: {
+    axisLine: {
+      lineStyle: {
+        color: '#E2E8F0'
+      }
+    },
+    axisTick: {
+      lineStyle: {
+        color: '#E2E8F0'
+      }
+    },
+    axisLabel: {
+      color: '#1E293B',
+      fontFamily: 'Alibaba PuHuiTi, sans-serif',
+      fontSize: 11
+    },
+    splitLine: {
+      lineStyle: {
+        color: '#E2E8F0'
+      }
+    }
+  },
+
+  // 提示框样式
+  tooltip: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderColor: '#10B981',
+    borderWidth: 1,
+    textStyle: {
+      color: '#0F172A',
+      fontFamily: 'Alibaba PuHuiTi, sans-serif',
+      fontSize: 12
+    }
+  },
+
+  // 时间轴样式
+  timeline: {
+    lineStyle: {
+      color: '#E2E8F0'
+    },
+    itemStyle: {
+      color: '#10B981'
+    },
+    label: {
+      color: '#1E293B',
+      fontFamily: 'Alibaba PuHuiTi, sans-serif'
+    }
+  }
+};
+
+// 柱状图默认配置
+const barChartOption = {
+  ...chartTheme,
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    top: '10%',
+    containLabel: true
+  },
+  xAxis: {
+    type: 'category',
+    ...chartTheme.categoryAxis
+  },
+  yAxis: {
+    type: 'value',
+    ...chartTheme.valueAxis
+  },
+  series: [{
+    type: 'bar',
+    barWidth: '55%',
+    itemStyle: {
+      borderRadius: [8, 8, 0, 0]
+    },
+    emphasis: {
+      itemStyle: {
+        color: '#34D399'
+      }
+    },
+    label: {
+      show: true,
+      position: 'top',
+      color: '#0F172A',
+      fontSize: 13,
+      fontWeight: 700
+    },
+    animationDuration: 1500,
+    animationEasing: 'elasticOut'
+  }]
+};
+
+// 折线图默认配置
+const lineChartOption = {
+  ...chartTheme,
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    top: '10%',
+    containLabel: true
+  },
+  xAxis: {
+    type: 'category',
+    boundaryGap: false,
+    ...chartTheme.categoryAxis
+  },
+  yAxis: {
+    type: 'value',
+    ...chartTheme.valueAxis
+  },
+  series: [{
+    type: 'line',
+    smooth: true,
+    symbol: 'circle',
+    symbolSize: 8,
+    lineStyle: {
+      width: 3
+    },
+    areaStyle: {
+      color: {
+        type: 'linear',
+        x: 0, y: 0, x2: 0, y2: 1,
+        colorStops: [
+          { offset: 0, color: 'rgba(16, 185, 129, 0.3)' },
+          { offset: 1, color: 'rgba(16, 185, 129, 0.05)' }
+        ]
+      }
+    },
+    animationDuration: 1500,
+    animationEasing: 'cubicOut'
+  }]
+};
+
+// 饼图默认配置
+const pieChartOption = {
+  ...chartTheme,
+  tooltip: {
+    trigger: 'item',
+    ...chartTheme.tooltip
+  },
+  series: [{
+    type: 'pie',
+    radius: ['40%', '70%'],
+    center: ['50%', '50%'],
+    avoidLabelOverlap: true,
+    itemStyle: {
+      borderRadius: 8,
+      borderColor: '#fff',
+      borderWidth: 2
+    },
+    label: {
+      show: true,
+      color: '#0F172A',
+      fontFamily: 'Alibaba PuHuiTi, sans-serif',
+      fontSize: 12
+    },
+    emphasis: {
+      label: {
+        show: true,
+        fontSize: 14,
+        fontWeight: 'bold'
+      }
+    },
+    labelLine: {
+      lineStyle: {
+        color: '#E2E8F0'
+      }
+    },
+    animationType: 'scale',
+    animationEasing: 'elasticOut',
+    animationDuration: 1000
+  }]
+};
+
+// 雷达图默认配置
+const radarChartOption = {
+  ...chartTheme,
+  radar: {
+    indicator: [],
+    axisName: {
+      color: '#0F172A',
+      fontFamily: 'Alibaba PuHuiTi, sans-serif',
+      fontSize: 11
+    },
+    splitArea: {
+      areaStyle: {
+        color: ['rgba(16, 185, 129, 0.08)', 'rgba(16, 185, 129, 0.03)']
+      }
+    },
+    axisLine: {
+      lineStyle: {
+        color: '#E2E8F0'
+      }
+    },
+    splitLine: {
+      lineStyle: {
+        color: '#E2E8F0'
+      }
+    }
+  },
+  series: [{
+    type: 'radar',
+    areaStyle: {
+      opacity: 0.3
+    },
+    lineStyle: {
+      width: 2
+    },
+    animationDuration: 1000
+  }]
+};
+
+// 导出配置
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    chartTheme,
+    barChartOption,
+    lineChartOption,
+    pieChartOption,
+    radarChartOption
+  };
+}
+
+
+    // 初始化 Lucide 图标
+    lucide.createIcons();
+
+    // 幻灯片导航
+    (function() {
+      const slides = document.querySelectorAll('.slide');
+      let currentIndex = 0;
+      const totalSlides = slides.length;
+
+      function showSlide(index) {
+        slides.forEach((slide, i) => {
+          slide.classList.remove('active');
+          if (i === index) {
+            slide.classList.add('active');
+            // 触发动画重播
+            const animatedElements = slide.querySelectorAll('.animate__animated');
+            animatedElements.forEach(el => {
+              el.style.animation = 'none';
+              el.offsetHeight; // 触发重排
+              el.style.animation = null;
+            });
+          }
+        });
+      }
+
+      // 初始化显示第一页
+      showSlide(0);
+
+      // 点击导航
+      document.querySelector('.slides-container').addEventListener('click', function(e) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const width = rect.width;
+
+        if (clickX > width * 0.6) {
+          // 点击右侧 - 下一页
+          if (currentIndex < totalSlides - 1) {
+            currentIndex++;
+            showSlide(currentIndex);
+          }
+        } else if (clickX < width * 0.4) {
+          // 点击左侧 - 上一页
+          if (currentIndex > 0) {
+            currentIndex--;
+            showSlide(currentIndex);
+          }
+        }
+      });
+
+      // 键盘左右键切换
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          if (currentIndex < totalSlides - 1) {
+            currentIndex++;
+            showSlide(currentIndex);
+          }
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          if (currentIndex > 0) {
+            currentIndex--;
+            showSlide(currentIndex);
+          }
+        }
+      });
+
+      // 数字动画
+      function animateNumber(element, target, duration = 1500) {
+        const start = 0;
+        const startTime = performance.now();
+        const isDecimal = target < 100 && target % 1 !== 0;
+
+        function update(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const easeProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+          const current = start + (target - start) * easeProgress;
+
+          if (isDecimal) {
+            element.textContent = current.toFixed(1);
+          } else {
+            element.textContent = Math.floor(current).toLocaleString();
+          }
+
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          }
+        }
+
+        requestAnimationFrame(update);
+      }
+
+      // 初始化图表
+      function initCharts() {
+        
+
+      }
+
+      // 页面加载完成后初始化
+      document.addEventListener('DOMContentLoaded', function() {
+        initCharts();
+
+        // 初始化数字动画
+        document.querySelectorAll('.data-value[data-target]').forEach(el => {
+          const target = parseFloat(el.dataset.target);
+          animateNumber(el, target);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -62,8 +62,8 @@ export function ModeSelectStep() {
           </ul>
 
           <Button
-            variant={workMode === 'template' ? 'brand' : 'outline'}
-            className="w-full"
+            className={cn("w-full", workMode === 'template' && "btn-primary-glow")}
+            variant={workMode === 'template' ? 'default' : 'outline'}
             onClick={(e) => {
               e.stopPropagation();
               handleSelect('template');
@@ -116,8 +116,8 @@ export function ModeSelectStep() {
           </ul>
 
           <Button
-            variant={workMode === 'advanced' ? 'brand' : 'outline'}
-            className="w-full"
+            className={cn("w-full", workMode === 'advanced' && "btn-primary-glow")}
+            variant={workMode === 'advanced' ? 'default' : 'outline'}
             onClick={(e) => {
               e.stopPropagation();
               handleSelect('advanced');

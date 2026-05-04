@@ -53,13 +53,12 @@ export function PreviewLayout({
           {showPresenterButton && (
             <Button
               size="sm"
-              variant="brand"
               onClick={onPresenterEnter}
-              className="px-2.5"
+              className="px-2.5 btn-primary-glow"
             >
               <Play className="size-3.5 fill-current" />
               <span className="hidden sm:inline ml-1">演示</span>
-              <kbd className="ml-1 hidden sm:inline rounded-[3px] bg-brand-foreground/15 px-1 font-mono text-[9.5px]">
+              <kbd className="ml-1 hidden sm:inline rounded-[3px] bg-white/20 px-1 font-mono text-[9.5px]">
                 F
               </kbd>
             </Button>

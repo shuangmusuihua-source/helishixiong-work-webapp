@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List Page Preview</title>
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --primary-color: #10B981;
+      --secondary-color: #1E293B;
+      --accent-color: #34D399;
+      --text-color: #0F172A;
+      --color-green: #10B981;
+      --color-green-light: #34D399;
+      --gradient-color-1: rgba(16, 185, 129, 0.12);
+      --gradient-color-2: rgba(52, 211, 153, 0.10);
+      --gradient-color-3: rgba(20, 184, 166, 0.08);
+      --gradient-color-4: rgba(132, 204, 22, 0.06);
+      --glass-bg: rgba(255, 255, 255, 0.25);
+      --glass-blur: blur(20px) saturate(180%);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.3);
+      --gradient-primary: linear-gradient(135deg, var(--color-green), var(--color-green-light));
+      --gradient-vertical: linear-gradient(180deg, var(--primary-color), var(--accent-color));
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      --slide-padding-h: 2cm;
+      --slide-padding-v: 1cm;
+      --region-gap: 0.2cm;
+      --region-padding: 0.1cm;
+      --title-font-size: 2rem;
+      --summary-font-size: 1rem;
+      --content-font-size: 1.2rem;
+      --page-number-font-size: 0.8rem;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      overflow: hidden;
+    }
+    .webgl-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 25%, var(--gradient-color-1) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 20%, var(--gradient-color-2) 0%, transparent 50%),
+        radial-gradient(ellipse at 20% 80%, var(--gradient-color-3) 0%, transparent 45%),
+        radial-gradient(ellipse at 80% 75%, var(--gradient-color-4) 0%, transparent 50%),
+        linear-gradient(180deg, #FAFBFC 0%, #F8FAFC 50%, #F1F5F9 100%);
+    }
+    .slides-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      cursor: pointer;
+      padding: var(--slide-padding-v) var(--slide-padding-h);
+      display: flex;
+      flex-direction: column;
+    }
+    .slide.active {
+      opacity: 1;
+      z-index: 1;
+    }
+    .title-region {
+      flex-shrink: 0;
+      padding: var(--region-padding) 0;
+      margin-bottom: var(--region-gap);
+    }
+    .title-region .title {
+      font-size: var(--title-font-size);
+      font-weight: 600;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .title-region .title-decor {
+      width: 6px;
+      height: 1.8rem;
+      background: var(--gradient-vertical);
+      border-radius: 3px;
+    }
+    .summary-region {
+      flex-shrink: 0;
+      padding: var(--region-padding) 0;
+      margin-bottom: var(--region-gap);
+    }
+    .summary-region .summary {
+      font-size: var(--summary-font-size);
+      color: var(--secondary-color);
+      opacity: 0.85;
+    }
+    .content-region {
+      flex: 1;
+      min-height: 0;
+      padding: var(--region-padding) 0;
+      margin-bottom: var(--region-gap);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .page-number-region {
+      flex-shrink: 0;
+      padding: var(--region-padding) 0;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .page-number-region .page-number {
+      font-size: var(--page-number-font-size);
+      color: var(--secondary-color);
+      opacity: 0.5;
+    }
+    .list-content {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-content: flex-start;
+    }
+    .list-item {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-radius: var(--radius-lg);
+      border: var(--glass-border);
+      padding: 1.25rem 1.5rem;
+      flex: 1 1 calc(50% - 0.5rem);
+      min-width: 280px;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      transition: transform 0.3s ease;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: list-card-in 0.5s ease forwards;
+    }
+    .list-item:hover {
+      transform: translateY(-4px);
+    }
+    .list-item:nth-child(1) { animation-delay: 0.1s; }
+    .list-item:nth-child(2) { animation-delay: 0.15s; }
+    .list-item:nth-child(3) { animation-delay: 0.2s; }
+    .list-item:nth-child(4) { animation-delay: 0.25s; }
+    .list-item:nth-child(5) { animation-delay: 0.3s; }
+    .list-item:nth-child(6) { animation-delay: 0.35s; }
+    @keyframes list-card-in {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .list-decor {
+      width: 40px;
+      height: 40px;
+      background: var(--gradient-primary);
+      border-radius: var(--radius-md);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .list-text {
+      font-size: var(--content-font-size);
+      color: var(--text-color);
+      line-height: 1.6;
+      flex: 1;
+    }
+    .list-text .highlight {
+      font-weight: 700;
+      color: var(--color-green);
+    }
+    .nav-hint {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div class="webgl-background"></div>
+  <div class="nav-hint">Press Arrow Keys or Click Left/Right to Navigate</div>
+  <div class="slides-container">
+    <div class="slide active">
+      <div class="title-region">
+        <h2 class="title"><span class="title-decor"></span>Core Features</h2>
+      </div>
+      <div class="summary-region">
+        <p class="summary">Six core capabilities for digital transformation</p>
+      </div>
+      <div class="content-region">
+        <div class="list-content">
+          <div class="list-item">
+            <span class="list-decor">1</span>
+            <span class="list-text"><span class="highlight">Smart Analytics</span>: AI-powered data mining and visualization</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor">2</span>
+            <span class="list-text"><span class="highlight">Real-time Collaboration</span>: Multi-user editing with comments</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor">3</span>
+            <span class="list-text"><span class="highlight">Security</span>: End-to-end encryption for enterprise data</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor">4</span>
+            <span class="list-text"><span class="highlight">Flexible Deployment</span>: Public, private, or hybrid cloud</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor">5</span>
+            <span class="list-text"><span class="highlight">Open API</span>: Comprehensive API for third-party integration</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor">6</span>
+            <span class="list-text"><span class="highlight">Smart Ops</span>: Automated monitoring and alerting</span>
+          </div>
+        </div>
+      </div>
+      <div class="page-number-region"><span class="page-number">1 / 3</span></div>
+    </div>
+
+    <div class="slide">
+      <div class="title-region">
+        <h2 class="title"><span class="title-decor"></span>Product Advantages</h2>
+      </div>
+      <div class="summary-region">
+        <p class="summary">Four key advantages for exceptional experience</p>
+      </div>
+      <div class="content-region">
+        <div class="list-content">
+          <div class="list-item">
+            <span class="list-decor">1</span>
+            <span class="list-text"><span class="highlight">Efficient</span>: Generate professional slides in seconds</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor">2</span>
+            <span class="list-text"><span class="highlight">Beautiful</span>: Premium templates with auto-layout</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor">3</span>
+            <span class="list-text"><span class="highlight">Smart</span>: AI-driven content generation</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor">4</span>
+            <span class="list-text"><span class="highlight">Sync</span>: Cloud storage, access anywhere</span>
+          </div>
+        </div>
+      </div>
+      <div class="page-number-region"><span class="page-number">2 / 3</span></div>
+    </div>
+
+    <div class="slide">
+      <div class="title-region">
+        <h2 class="title"><span class="title-decor"></span>Tech Stack</h2>
+      </div>
+      <div class="summary-region">
+        <p class="summary">Modern technology for high-performance applications</p>
+      </div>
+      <div class="content-region">
+        <div class="list-content">
+          <div class="list-item">
+            <span class="list-decor">A</span>
+            <span class="list-text"><span class="highlight">Microservices</span>: Modular design, independent deployment</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor">B</span>
+            <span class="list-text"><span class="highlight">Responsive</span>: Adaptive to all screen sizes</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor">C</span>
+            <span class="list-text"><span class="highlight">Zero Trust</span>: Multi-layer security protection</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor">D</span>
+            <span class="list-text"><span class="highlight">Observability</span>: Full-link tracing and monitoring</span>
+          </div>
+        </div>
+      </div>
+      <div class="page-number-region"><span class="page-number">3 / 3</span></div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      var slides = document.querySelectorAll('.slide');
+      var currentIndex = 0;
+      var totalSlides = slides.length;
+
+      function showSlide(index) {
+        for (var i = 0; i < slides.length; i++) {
+          slides[i].classList.remove('active');
+        }
+        slides[index].classList.add('active');
+      }
+
+      document.querySelector('.slides-container').addEventListener('click', function(e) {
+        var rect = e.currentTarget.getBoundingClientRect();
+        var clickX = e.clientX - rect.left;
+        var width = rect.width;
+
+        if (clickX > width * 0.6 && currentIndex < totalSlides - 1) {
+          currentIndex++;
+          showSlide(currentIndex);
+        } else if (clickX < width * 0.4 && currentIndex > 0) {
+          currentIndex--;
+          showSlide(currentIndex);
+        }
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if ((e.key === 'ArrowRight' || e.key === 'ArrowDown') && currentIndex < totalSlides - 1) {
+          e.preventDefault();
+          currentIndex++;
+          showSlide(currentIndex);
+        } else if ((e.key === 'ArrowLeft' || e.key === 'ArrowUp') && currentIndex > 0) {
+          e.preventDefault();
+          currentIndex--;
+          showSlide(currentIndex);
+        }
+      });
+
+      console.log('Slides initialized:', totalSlides);
+    })();
+  </script>
+</body>
+</html>

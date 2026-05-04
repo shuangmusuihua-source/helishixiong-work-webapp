@@ -3,13 +3,11 @@ import type { CoverSlide, EndSlide } from '@/types';
 export function generateCover(slide: CoverSlide): string {
   return `
     <div class="slide cover-slide active">
-      <div class="cover-content">
-        <h1 class="cover-title animate__animated animate__fadeInUp">${slide.title}</h1>
-        ${slide.subtitle ? `<p class="cover-subtitle animate__animated animate__fadeInUp animate__delay-1s">${slide.subtitle}</p>` : ''}
-        <div class="cover-meta animate__animated animate__fadeIn animate__delay-1s">
-          ${slide.author ? `<span class="cover-author">${slide.author}</span>` : ''}
-          ${slide.date ? `<span class="cover-date">${slide.date}</span>` : ''}
-        </div>
+      <h1 class="cover-title">${slide.title}</h1>
+      ${slide.subtitle ? `<p class="cover-subtitle">${slide.subtitle}</p>` : ''}
+      <div class="cover-meta">
+        ${slide.author ? `<p class="cover-author">${slide.author}</p>` : ''}
+        ${slide.date ? `<p class="cover-date">${slide.date}</p>` : ''}
       </div>
     </div>
   `;
@@ -18,8 +16,10 @@ export function generateCover(slide: CoverSlide): string {
 export function generateEnd(slide: EndSlide): string {
   return `
     <div class="slide end-slide">
-      <div class="end-content">
-        <h1 class="end-title animate__animated animate__fadeIn">${slide.title || '谢谢观看'}</h1>
+      <h1 class="end-title">${slide.title || '感谢聆听'}</h1>
+      <div class="end-meta">
+        ${slide.author ? `<p class="end-author">${slide.author}</p>` : ''}
+        ${slide.date ? `<p class="end-date">${slide.date}</p>` : ''}
       </div>
     </div>
   `;

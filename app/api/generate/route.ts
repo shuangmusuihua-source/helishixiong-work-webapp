@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
-import { generateSlideHtml, generateFullHtml } from '@/lib/generator';
+import { generateSlideHtml, generateFullHtml, type StreamCallback } from '@/lib/generator';
+import { SSE_EVENT_TYPES } from '@/lib/utils';
 import type { GenerateRequest } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -7,7 +8,7 @@ export async function POST(request: NextRequest) {
     const body: GenerateRequest = await request.json();
     const { outline, theme_id } = body;
 
-    if (!outline || !outline.slides || outline.slides.length === 0) {
+    if (!outline?.slides?.length) {
       return new Response(JSON.stringify({ error: '大纲不能为空' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
@@ -16,69 +17,50 @@ export async function POST(request: NextRequest) {
 
     const encoder = new TextEncoder();
     const slidesHtml: string[] = [];
+    const context = `主题：${outline.title}\n大纲概览：\n${outline.slides
+      .map((s, i) => `${i + 1}. ${s.title}${s.page_type === 'content' && s.summary ? ` - ${s.summary}` : ''}`)
+      .join('\n')}`;
 
     const stream = new ReadableStream({
       async start(controller) {
+        const send = (data: object) => {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+        };
+
         try {
           for (let i = 0; i < outline.slides.length; i++) {
-            // 发送进度事件
-            const progressEvent = {
-              page_num: i + 1,
-              total: outline.slides.length,
-              status: 'generating',
+            send({ page_num: i + 1, total: outline.slides.length, status: 'generating', title: outline.slides[i].title });
+
+            const streamCallback: StreamCallback = (event) => {
+              if (event.type === SSE_EVENT_TYPES.AI_TEXT && event.text) {
+                send({ type: SSE_EVENT_TYPES.AI_TEXT, text: event.text });
+              } else if (event.type === SSE_EVENT_TYPES.AI_COMPLETE) {
+                send({ type: SSE_EVENT_TYPES.AI_COMPLETE });
+              } else if (event.type === SSE_EVENT_TYPES.ERROR) {
+                send({ type: SSE_EVENT_TYPES.ERROR, error: event.error });
+              }
             };
-            controller.enqueue(
-              encoder.encode(`event: progress\ndata: ${JSON.stringify(progressEvent)}\n\n`)
-            );
 
-            // 生成单页 HTML
-            const slideHtml = await generateSlideHtml(outline.slides[i], theme_id);
-            slidesHtml.push(slideHtml);
-
-            // 发送页面事件
-            const pageEvent = {
-              page_num: i + 1,
-              html: slideHtml,
-            };
-            controller.enqueue(
-              encoder.encode(`event: page\ndata: ${JSON.stringify(pageEvent)}\n\n`)
-            );
-
-            // 模拟生成延迟（实际生产中可移除）
-            await new Promise((resolve) => setTimeout(resolve, 100));
+            const result = await generateSlideHtml(outline.slides[i], theme_id, outline.slides.length, context, streamCallback);
+            slidesHtml.push(result.html);
+            send({ type: SSE_EVENT_TYPES.PAGE_COMPLETE, page_num: i + 1, html: result.html });
           }
 
-          // 生成完整 HTML
           const fullHtml = await generateFullHtml(outline, theme_id, slidesHtml);
           const fileId = `slides-${Date.now()}`;
 
-          // 发送完成事件
-          const completeEvent = {
-            file_id: fileId,
-            page_count: outline.slides.length,
-            html: fullHtml,
-          };
-          controller.enqueue(
-            encoder.encode(`event: complete\ndata: ${JSON.stringify(completeEvent)}\n\n`)
-          );
-
+          send({ type: SSE_EVENT_TYPES.COMPLETE, file_id: fileId, page_count: outline.slides.length, html: fullHtml });
           controller.close();
         } catch (error) {
           console.error('Stream error:', error);
-          controller.enqueue(
-            encoder.encode(`event: error\ndata: ${JSON.stringify({ error: '生成失败' })}\n\n`)
-          );
+          send({ type: SSE_EVENT_TYPES.ERROR, error: `生成失败: ${(error as Error).message}` });
           controller.close();
         }
       },
     });
 
     return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
+      headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', 'Connection': 'keep-alive' },
     });
   } catch (error) {
     console.error('Generate error:', error);

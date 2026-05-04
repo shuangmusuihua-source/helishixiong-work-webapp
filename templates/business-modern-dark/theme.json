@@ -2,7 +2,7 @@
   "id": "business-modern-dark",
   "name": "商务现代黑",
   "description": "商务现代风格深色版，清新绿色系配色、四色弥散渐变背景、毛玻璃卡片、G2连续曲率圆角(30px)、深色背景设计，支持键盘导航，适合现代商务汇报场景",
-  "version": "1.0.5",
+  "version": "1.7.7",
   "colors": {
     "background": "#0F172A",
     "primary": "#10B981",

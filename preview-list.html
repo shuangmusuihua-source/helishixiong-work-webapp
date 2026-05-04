@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List 页面预览</title>
+
+  <!-- 图标字体 -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- 动画库 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <!-- 字体 -->
+  <style>
+    @font-face {
+      font-family: 'Alibaba PuHuiTi';
+      src: url('/fonts/AlibabaPuHuiTi-3/AlibabaPuHuiTi-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Alibaba PuHuiTi';
+      src: url('/fonts/AlibabaPuHuiTi-3/AlibabaPuHuiTi-Bold.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+  </style>
+
+  <style>
+    /* 商务现代白主题样式 - 新布局结构 v1.7.7 */
+
+/* 基础变量 */
+:root {
+  --bg-color: #ffffff;
+  --primary-color: #10B981;
+  --secondary-color: #1E293B;
+  --accent-color: #34D399;
+  --text-color: #0F172A;
+  --border-color: #E2E8F0;
+
+  /* 绿色系辅助色 */
+  --color-green: #10B981;
+  --color-green-light: #34D399;
+  --color-green-dark: #059669;
+  --color-teal: #14B8A6;
+  --color-lime: #84CC16;
+
+  /* 弥散渐变背景色 */
+  --gradient-color-1: rgba(16, 185, 129, 0.12);
+  --gradient-color-2: rgba(52, 211, 153, 0.10);
+  --gradient-color-3: rgba(20, 184, 166, 0.08);
+  --gradient-color-4: rgba(132, 204, 22, 0.06);
+
+  /* 毛玻璃效果变量 */
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-blur: blur(20px) saturate(180%);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.3);
+  --glass-radius: 30px;
+  --glass-corner-shape: squircle;
+
+  /* 渐变变量 */
+  --gradient-primary: linear-gradient(135deg, var(--color-green), var(--color-green-light));
+  --gradient-vertical: linear-gradient(180deg, var(--primary-color), var(--accent-color));
+  --gradient-highlight: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(52, 211, 153, 0.12));
+
+  /* 圆角变量 */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --font-family: 'Alibaba PuHuiTi', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* 新布局参数 */
+  --slide-padding-h: 2cm;
+  --slide-padding-v: 1cm;
+  --region-gap: 0.2cm;
+  --region-padding: 0.1cm;
+
+  /* 字号 */
+  --title-font-size: 2rem;
+  --subtitle-font-size: 1.5rem;
+  --content-font-size: 1.2rem;
+  --summary-font-size: 1rem;
+  --page-number-font-size: 0.8rem;
+}
+
+/* 全局样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  overflow: hidden;
+}
+
+/* 弥散渐变背景 - 四色弥散 */
+.webgl-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 15% 25%, var(--gradient-color-1) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 20%, var(--gradient-color-2) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 80%, var(--gradient-color-3) 0%, transparent 45%),
+    radial-gradient(ellipse at 80% 75%, var(--gradient-color-4) 0%, transparent 50%),
+    linear-gradient(180deg, #FAFBFC 0%, #F8FAFC 50%, #F1F5F9 100%);
+}
+
+/* 幻灯片容器 */
+.slides-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+/* 单页幻灯片 - 新布局结构 */
+.slide {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  cursor: pointer;
+
+  /* 使用 padding 实现留白 */
+  padding: var(--slide-padding-v) var(--slide-padding-h);
+
+  /* Flexbox 纵向排列 */
+  display: flex;
+  flex-direction: column;
+}
+
+.slide.active {
+  opacity: 1;
+  z-index: 1;
+}
+
+/* ========== 区域定义 ========== */
+
+/* 标题区 */
+.title-region {
+  flex-shrink: 0;
+  padding: var(--region-padding) 0;
+  margin-bottom: var(--region-gap);
+}
+
+.title-region .title {
+  font-size: var(--title-font-size);
+  font-weight: 600;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.title-region .title-decor {
+  width: 6px;
+  height: 1.8rem;
+  background: var(--gradient-vertical);
+  border-radius: 3px;
+}
+
+/* 一句话总结区 */
+.summary-region {
+  flex-shrink: 0;
+  padding: var(--region-padding) 0;
+  margin-bottom: var(--region-gap);
+}
+
+.summary-region .summary {
+  font-size: var(--summary-font-size);
+  color: var(--secondary-color);
+  opacity: 0.85;
+}
+
+/* 内容区 */
+.content-region {
+  flex: 1;
+  min-height: 0;
+  padding: var(--region-padding) 0;
+  margin-bottom: var(--region-gap);
+
+  /* 内容垂直居中 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* 页码区 */
+.page-number-region {
+  flex-shrink: 0;
+  padding: var(--region-padding) 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.page-number-region .page-number {
+  font-size: var(--page-number-font-size);
+  color: var(--secondary-color);
+  opacity: 0.5;
+}
+
+/* ========== 纯文本列表样式 (list) ========== */
+
+.list-content {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-content: flex-start;
+}
+
+.list-item {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--glass-corner-shape);
+  border: var(--glass-border);
+  padding: 1.25rem 1.5rem;
+  flex: 1 1 calc(50% - 0.5rem);
+  min-width: 280px;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: transform 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: list-card-in 0.5s ease forwards;
+  position: relative;
+}
+
+.list-item:hover {
+  transform: translateY(-4px);
+}
+
+.list-item:nth-child(1) { animation-delay: 0.1s; }
+.list-item:nth-child(2) { animation-delay: 0.15s; }
+.list-item:nth-child(3) { animation-delay: 0.2s; }
+.list-item:nth-child(4) { animation-delay: 0.25s; }
+.list-item:nth-child(5) { animation-delay: 0.3s; }
+.list-item:nth-child(6) { animation-delay: 0.35s; }
+.list-item:nth-child(7) { animation-delay: 0.4s; }
+.list-item:nth-child(8) { animation-delay: 0.45s; }
+
+@keyframes list-card-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.list-decor {
+  width: 40px;
+  height: 40px;
+  background: var(--gradient-primary);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.list-decor::before {
+  content: attr(data-index);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.list-text {
+  font-size: var(--content-font-size);
+  color: var(--text-color);
+  line-height: 1.6;
+  flex: 1;
+}
+
+.list-text .highlight {
+  font-weight: 700;
+  color: var(--color-green);
+}
+
+/* 项目数 ≤4：横向排列卡片，卡片内上下布局 */
+.list-content.layout-horizontal {
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.list-content.layout-horizontal .list-item {
+  flex: 1;
+  min-width: 200px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+}
+
+.list-content.layout-horizontal .list-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+
+.list-content.layout-horizontal .list-decor {
+  width: 32px;
+  height: 32px;
+}
+
+.list-content.layout-horizontal .list-decor::before {
+  font-size: 0.9rem;
+}
+
+.list-content.layout-horizontal .list-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.list-content.layout-horizontal .list-divider {
+  height: 1px;
+  background: rgba(16, 185, 129, 0.15);
+  margin: 0 1.25rem;
+}
+
+.list-content.layout-horizontal .list-text {
+  padding: 1rem 1.25rem;
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+  </style>
+</head>
+<body>
+  <div class="webgl-background"></div>
+
+  <div class="slides-container">
+    <!-- 示例1: 6个项目的列表页（两列布局） -->
+    <div class="slide active">
+      <div class="title-region">
+        <h2 class="title">
+          <span class="title-decor"></span>
+          核心功能特性
+        </h2>
+      </div>
+      <div class="summary-region">
+        <p class="summary">六大核心能力，助力企业数字化转型</p>
+      </div>
+      <div class="content-region">
+        <div class="list-content">
+          <div class="list-item">
+            <span class="list-decor" data-index="1"></span>
+            <span class="list-text">
+              <span class="highlight">智能数据分析</span>：基于 AI 的深度数据挖掘与可视化展示
+            </span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor" data-index="2"></span>
+            <span class="list-text">
+              <span class="highlight">实时协作</span>：多人在线协同编辑，支持评论与版本管理
+            </span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor" data-index="3"></span>
+            <span class="list-text">
+              <span class="highlight">安全加密</span>：端到端加密传输，企业级数据安全保障
+            </span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor" data-index="4"></span>
+            <span class="list-text">
+              <span class="highlight">灵活部署</span>：支持公有云、私有云、混合云多种部署方式
+            </span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor" data-index="5"></span>
+            <span class="list-text">
+              <span class="highlight">开放接口</span>：提供完善的 API 接口，轻松对接第三方系统
+            </span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor" data-index="6"></span>
+            <span class="list-text">
+              <span class="highlight">智能运维</span>：自动化监控告警，7×24 小时运维保障
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="page-number-region">
+        <span class="page-number">1 / 3</span>
+      </div>
+    </div>
+
+    <!-- 示例2: 4个项目的列表页（横向布局） -->
+    <div class="slide">
+      <div class="title-region">
+        <h2 class="title">
+          <span class="title-decor"></span>
+          产品优势
+        </h2>
+      </div>
+      <div class="summary-region">
+        <p class="summary">四大优势，打造卓越用户体验</p>
+      </div>
+      <div class="content-region">
+        <div class="list-content layout-horizontal">
+          <div class="list-item">
+            <div class="list-item-header">
+              <span class="list-decor" data-index="1"></span>
+              <span class="list-title">高效便捷</span>
+            </div>
+            <div class="list-divider"></div>
+            <div class="list-text">一键生成专业幻灯片，节省 80% 制作时间</div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-header">
+              <span class="list-decor" data-index="2"></span>
+              <span class="list-title">专业美观</span>
+            </div>
+            <div class="list-divider"></div>
+            <div class="list-text">多套精品模板，自动排版，视觉效果出众</div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-header">
+              <span class="list-decor" data-index="3"></span>
+              <span class="list-title">智能生成</span>
+            </div>
+            <div class="list-divider"></div>
+            <div class="list-text">AI 驱动内容生成，智能匹配图表与布局</div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-header">
+              <span class="list-decor" data-index="4"></span>
+              <span class="list-title">多端同步</span>
+            </div>
+            <div class="list-divider"></div>
+            <div class="list-text">云端存储，随时随地访问与编辑</div>
+          </div>
+        </div>
+      </div>
+      <div class="page-number-region">
+        <span class="page-number">2 / 3</span>
+      </div>
+    </div>
+
+    <!-- 示例3: 带图标的列表页 -->
+    <div class="slide">
+      <div class="title-region">
+        <h2 class="title">
+          <span class="title-decor"></span>
+          技术架构特点
+        </h2>
+      </div>
+      <div class="summary-region">
+        <p class="summary">现代化技术栈，构建高性能应用</p>
+      </div>
+      <div class="content-region">
+        <div class="list-content">
+          <div class="list-item">
+            <span class="list-decor" data-index="🚀"></span>
+            <span class="list-text">
+              <span class="highlight">微服务架构</span>：模块化设计，支持独立部署与扩展
+            </span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor" data-index="⚡"></span>
+            <span class="list-text">
+              <span class="highlight">响应式设计</span>：自适应多终端，完美适配各种屏幕尺寸
+            </span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor" data-index="🔒"></span>
+            <span class="list-text">
+              <span class="highlight">零信任安全</span>：多层次安全防护，保障数据隐私
+            </span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor" data-index="📊"></span>
+            <span class="list-text">
+              <span class="highlight">可观测性</span>：全链路追踪，实时监控系统健康状态
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="page-number-region">
+        <span class="page-number">3 / 3</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 幻灯片导航 {
+      const slides = document.querySelectorAll('.slide');
+      let currentIndex = 0;
+      const totalSlides = slides.length;
+
+      function showSlide(index) {
+        slides.forEach((slide, i) => {
+          slide.classList.remove('active');
+          if (i === index) {
+            slide.classList.add('active');
+          }
+        });
+      }
+
+      // 点击导航
+      document.querySelector('.slides-container').addEventListener('click', function(e) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const width = rect.width;
+
+        if (clickX > width * 0.6) {
+          if (currentIndex < totalSlides - 1) {
+            currentIndex++;
+            showSlide(currentIndex);
+          }
+        } else if (clickX < width * 0.4) {
+          if (currentIndex > 0) {
+            currentIndex--;
+            showSlide(currentIndex);
+          }
+        }
+      });
+
+      // 键盘左右键切换
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (currentIndex < totalSlides - 1) {
+            currentIndex++;
+            showSlide(currentIndex);
+          }
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (currentIndex > 0) {
+            currentIndex--;
+            showSlide(currentIndex);
+          }
+        }
+      });
+
+      console.log('Slides initialized:', totalSlides);
+    })();
+  </script>
+</body>
+</html>

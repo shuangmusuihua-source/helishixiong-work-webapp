@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商务现代白主题预览 - v1.7.7</title>
+
+  <!-- 图标字体 -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- 图表库 -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+
+  <!-- 动画库 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <!-- 字体 -->
+  <style>
+    @font-face {
+      font-family: 'Alibaba PuHuiTi';
+      src: url('AlibabaPuHuiTi-3/AlibabaPuHuiTi-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Alibaba PuHuiTi';
+      src: url('AlibabaPuHuiTi-3/AlibabaPuHuiTi-Bold.ttf') format('truetype');
+      font-weight: bold;
+      font-style: normal;
+    }
+  </style>
+
+  <style>
+    /* 商务现代白主题样式 - v1.7.7 */
+
+    /* 基础变量 */
+    :root {
+      --bg-color: #ffffff;
+      --primary-color: #10B981;
+      --secondary-color: #1E293B;
+      --accent-color: #34D399;
+      --text-color: #0F172A;
+      --border-color: #E2E8F0;
+
+      /* 绿色系辅助色 */
+      --color-green: #10B981;
+      --color-green-light: #34D399;
+      --color-green-dark: #059669;
+      --color-teal: #14B8A6;
+      --color-lime: #84CC16;
+
+      /* 弥散渐变背景色 */
+      --gradient-color-1: rgba(16, 185, 129, 0.12);
+      --gradient-color-2: rgba(52, 211, 153, 0.10);
+      --gradient-color-3: rgba(20, 184, 166, 0.08);
+      --gradient-color-4: rgba(132, 204, 22, 0.06);
+
+      /* 毛玻璃效果变量 */
+      --glass-bg: rgba(255, 255, 255, 0.25);
+      --glass-blur: blur(20px) saturate(180%);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.3);
+      --glass-radius: 30px;
+      --glass-corner-shape: squircle;
+
+      /* 渐变变量 */
+      --gradient-primary: linear-gradient(135deg, var(--color-green), var(--color-green-light));
+      --gradient-vertical: linear-gradient(180deg, var(--primary-color), var(--accent-color));
+      --gradient-highlight: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(52, 211, 153, 0.12));
+
+      /* 圆角变量 */
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+
+      --font-family: 'Alibaba PuHuiTi', -apple-system, BlinkMacSystemFont, sans-serif;
+
+      /* 新布局参数 */
+      --slide-padding-h: 2cm;
+      --slide-padding-v: 1cm;
+      --region-gap: 0.2cm;
+      --region-padding: 0.1cm;
+
+      /* 字号 */
+      --title-font-size: 2rem;
+      --subtitle-font-size: 1.5rem;
+      --content-font-size: 1.2rem;
+      --summary-font-size: 1rem;
+      --page-number-font-size: 0.8rem;
+    }
+
+    /* 全局样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      overflow: hidden;
+    }
+
+    /* 弥散渐变背景 - 四色弥散 */
+    .webgl-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 25%, var(--gradient-color-1) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 20%, var(--gradient-color-2) 0%, transparent 50%),
+        radial-gradient(ellipse at 20% 80%, var(--gradient-color-3) 0%, transparent 45%),
+        radial-gradient(ellipse at 80% 75%, var(--gradient-color-4) 0%, transparent 50%),
+        linear-gradient(180deg, #FAFBFC 0%, #F8FAFC 50%, #F1F5F9 100%);
+    }
+
+    /* 幻灯片容器 */
+    .slides-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* 单页幻灯片 */
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      cursor: pointer;
+      padding: var(--slide-padding-v) var(--slide-padding-h);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide.active {
+      opacity: 1;
+      z-index: 1;
+    }
+
+    /* ========== 区域定义 ========== */
+
+    /* 标题区 */
+    .title-region {
+      flex-shrink: 0;
+      padding: var(--region-padding) 0;
+      margin-bottom: var(--region-gap);
+    }
+
+    .title-region .title {
+      font-size: var(--title-font-size);
+      font-weight: 600;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .title-region .title-decor {
+      width: 6px;
+      height: 1.8rem;
+      background: var(--gradient-vertical);
+      border-radius: 3px;
+    }
+
+    /* 一句话总结区 */
+    .summary-region {
+      flex-shrink: 0;
+      padding: var(--region-padding) 0;
+      margin-bottom: var(--region-gap);
+    }
+
+    .summary-region .summary {
+      font-size: var(--summary-font-size);
+      color: var(--secondary-color);
+      opacity: 0.85;
+    }
+
+    /* 内容区 */
+    .content-region {
+      flex: 1;
+      min-height: 0;
+      padding: var(--region-padding) 0;
+      margin-bottom: var(--region-gap);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* 页码区 */
+    .page-number-region {
+      flex-shrink: 0;
+      padding: var(--region-padding) 0;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .page-number-region .page-number {
+      font-size: var(--page-number-font-size);
+      color: var(--secondary-color);
+      opacity: 0.5;
+    }
+
+    /* ========== 封面页 ========== */
+    .slide.cover-slide {
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .slide.cover-slide .page-number-region {
+      display: none;
+    }
+
+    .slide.cover-slide .cover-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .slide.cover-slide .cover-subtitle {
+      font-size: var(--subtitle-font-size);
+      color: var(--secondary-color);
+      margin-bottom: 2rem;
+    }
+
+    .slide.cover-slide .cover-meta {
+      font-size: 1rem;
+      color: var(--secondary-color);
+      opacity: 0.8;
+    }
+
+    .slide.cover-slide .cover-author {
+      margin-bottom: 0.5rem;
+    }
+
+    .slide.cover-slide .cover-date {
+      margin-bottom: 0;
+    }
+
+    /* ========== 尾页 ========== */
+    .slide.end-slide {
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .slide.end-slide .page-number-region {
+      display: none;
+    }
+
+    .slide.end-slide .end-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .slide.end-slide .end-meta {
+      font-size: 1rem;
+      color: var(--secondary-color);
+      opacity: 0.8;
+    }
+
+    .slide.end-slide .end-author {
+      margin-bottom: 0.5rem;
+    }
+
+    .slide.end-slide .end-date {
+      margin-bottom: 0;
+    }
+
+    /* ========== 毛玻璃卡片 ========== */
+    .glass-card,
+    .data-card,
+    .chart-chart-card,
+    .timeline-card,
+    .feature-card {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
+      border-radius: var(--glass-radius);
+      corner-shape: var(--glass-corner-shape);
+      transition: transform 0.3s ease;
+    }
+
+    .glass-card:hover,
+    .data-card:hover,
+    .timeline-card:hover,
+    .feature-card:hover {
+      transform: translateY(-4px);
+    }
+
+    /* ========== 数据页 ========== */
+    .data-cards {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .data-card {
+      padding: 1.25rem 1.5rem;
+      flex: 1 1 0;
+      min-width: 200px;
+      position: relative;
+    }
+
+    .data-card .data-value {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--text-color);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .data-card.highlighted {
+      background: var(--gradient-primary);
+      border: none;
+      transform: translateY(-6px) scale(1.02);
+      z-index: 1;
+    }
+
+    .data-card.highlighted .data-value,
+    .data-card.highlighted .card-title,
+    .data-card.highlighted .data-label {
+      color: #ffffff;
+    }
+
+    .data-card .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .data-card .card-header i,
+    .data-card .card-header svg {
+      font-size: 1.1rem;
+      color: var(--primary-color);
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+
+    .data-card.highlighted .card-header i,
+    .data-card.highlighted .card-header svg {
+      color: #ffffff;
+      stroke: #ffffff;
+    }
+
+    .data-card .card-title {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--secondary-color);
+    }
+
+    .data-card.highlighted .card-title {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .data-card .card-divider {
+      height: 1px;
+      background: rgba(16, 185, 129, 0.12);
+      margin-bottom: 1.125rem;
+    }
+
+    .data-card.highlighted .card-divider {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .data-card .data-label {
+      font-size: 0.85rem;
+      color: var(--secondary-color);
+      margin-top: 0.25rem;
+    }
+
+    .data-card.highlighted .data-label {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* ========== 图表页 ========== */
+    .chart-layout {
+      display: flex;
+      gap: 2rem;
+      width: 100%;
+      align-items: stretch;
+    }
+
+    .chart-info {
+      flex: 0 0 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .chart-info-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 1.25rem;
+    }
+
+    .chart-info-item {
+      font-size: 1rem;
+      color: var(--text-color);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .chart-info-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .chart-info-item .key-bold {
+      font-weight: 700;
+    }
+
+    .chart-info-item .key-color {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    .chart-chart-card {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .chart-chart-card .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .chart-chart-card .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .chart-chart-card .card-divider {
+      height: 1px;
+      background: rgba(16, 185, 129, 0.12);
+      margin-bottom: 1rem;
+    }
+
+    .chart-container {
+      flex: 1;
+      width: 100%;
+      min-height: 200px;
+    }
+
+    /* ========== 时间线页 ========== */
+    .timeline-horizontal {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 1rem;
+    }
+
+    .timeline-track {
+      position: relative;
+      width: 100%;
+      padding: 0 2rem;
+    }
+
+    .timeline-line-h {
+      position: absolute;
+      left: 2rem;
+      right: 2rem;
+      top: 8px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--color-green), var(--color-green-light), var(--color-teal));
+      border-radius: 2px;
+      z-index: 0;
+    }
+
+    .timeline-nodes {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .timeline-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+
+    .timeline-dot-h {
+      width: 16px;
+      height: 16px;
+      background: var(--color-green);
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+      margin-bottom: 1.5rem;
+    }
+
+    .timeline-node:first-child .timeline-dot-h {
+      background: var(--color-green-dark);
+      box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.4);
+    }
+
+    .timeline-card {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.25rem;
+      width: 160px;
+      text-align: center;
+    }
+
+    .timeline-card:hover {
+      transform: translateY(-8px);
+    }
+
+    .timeline-year-h {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--color-green);
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-title-h {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-desc-h {
+      font-size: 0.8rem;
+      color: var(--secondary-color);
+      line-height: 1.5;
+    }
+
+    /* ========== 对比页 ========== */
+    .feature-compare-layout {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      position: relative;
+    }
+
+    .feature-card {
+      width: 480px;
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 2rem;
+    }
+
+    .feature-card.left {
+      clip-path: url(#left-card-clip);
+    }
+
+    .feature-card.right {
+      clip-path: url(#right-card-clip);
+    }
+
+    .feature-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-card.right .feature-card-header {
+      flex-direction: row-reverse;
+    }
+
+    .feature-card-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--gradient-primary);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .feature-card-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: #fff;
+    }
+
+    .feature-card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+
+    .feature-card.right .feature-card-title {
+      text-align: right;
+    }
+
+    .feature-card-subtitle {
+      font-size: 0.8rem;
+      color: var(--secondary-color);
+      margin-top: 0.2rem;
+    }
+
+    .feature-card.right .feature-card-subtitle {
+      text-align: right;
+    }
+
+    .feature-card-divider {
+      height: 1px;
+      background: rgba(16, 185, 129, 0.15);
+      margin-bottom: 1rem;
+    }
+
+    .feature-list {
+      list-style: none;
+      flex: 1;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(16, 185, 129, 0.08);
+    }
+
+    .feature-list li:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .feature-card.right .feature-list li {
+      flex-direction: row-reverse;
+    }
+
+    .feature-list .check-icon {
+      width: 18px;
+      height: 18px;
+      background: var(--color-green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .feature-list .check-icon svg {
+      width: 10px;
+      height: 10px;
+      stroke: #fff;
+    }
+
+    .feature-list .feature-text {
+      font-size: 0.95rem;
+      color: var(--text-color);
+      line-height: 1.5;
+    }
+
+    .feature-card.right .feature-list .feature-text {
+      text-align: right;
+    }
+
+    .feature-list .feature-text strong {
+      color: var(--color-green);
+      font-weight: 600;
+    }
+
+    .vs-badge {
+      width: 100px;
+      height: 100px;
+      background: var(--gradient-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 30px rgba(16, 185, 129, 0.5);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+      margin: 0 -15px;
+    }
+
+    .vs-badge svg {
+      width: 44px;
+      height: 44px;
+      stroke: #fff;
+      stroke-width: 2.5;
+    }
+
+    /* ========== 引用页 ========== */
+    .quote-block {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2.5rem 3rem;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: var(--glass-border);
+      border-radius: var(--glass-radius);
+      corner-shape: var(--glass-corner-shape);
+      position: relative;
+    }
+
+    .quote-block::before {
+      content: '"';
+      position: absolute;
+      top: 0.5rem;
+      left: 1.5rem;
+      font-size: 4rem;
+      font-weight: 700;
+      color: var(--color-green);
+      opacity: 0.3;
+      line-height: 1;
+    }
+
+    .quote-text {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: var(--text-color);
+      line-height: 1.8;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .quote-author {
+      font-size: 1rem;
+      color: var(--secondary-color);
+      text-align: right;
+      opacity: 0.8;
+    }
+
+    .quote-author::before {
+      content: '—— ';
+    }
+
+    /* ========== 列表页 ========== */
+    .list-content {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .list-item {
+      display: flex;
+      align-items: flex-start;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(16, 185, 129, 0.08);
+    }
+
+    .list-item:last-child {
+      border-bottom: none;
+    }
+
+    .list-decor {
+      width: 4px;
+      height: 1.2rem;
+      background: var(--gradient-vertical);
+      border-radius: 2px;
+      margin-right: 1rem;
+      margin-top: 0.2rem;
+      flex-shrink: 0;
+    }
+
+    .list-text {
+      font-size: var(--content-font-size);
+      color: var(--text-color);
+      line-height: 1.8;
+      flex: 1;
+    }
+
+    .list-text .highlight {
+      font-weight: 700;
+      color: var(--color-green);
+    }
+
+    /* ========== 段落页 ========== */
+    .paragraph-content {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .paragraph-content p {
+      font-size: var(--content-font-size);
+      color: var(--text-color);
+      line-height: 2;
+      text-align: justify;
+      margin-bottom: 1.25rem;
+    }
+
+    .paragraph-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .highlight-text {
+      font-weight: 700;
+      color: var(--color-green);
+    }
+
+    .highlight-bg {
+      background: var(--gradient-highlight);
+      padding: 0.1em 0.4em;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      color: var(--color-green);
+    }
+  </style>
+</head>
+<body>
+  <!-- SVG定义clip-path -->
+  <svg width="0" height="0" style="position:absolute;">
+    <defs>
+      <clipPath id="left-card-clip" clipPathUnits="objectBoundingBox">
+        <path d="
+          M 0.0625 0
+          L 0.9375 0
+          Q 1 0, 1 0.0625
+          L 1 0.34
+          C 1 0.37, 0.965 0.41, 0.958 0.45
+          A 0.042 0.08 0 0 0 0.958 0.55
+          C 0.965 0.59, 1 0.63, 1 0.66
+          L 1 0.9375
+          Q 1 1, 0.9375 1
+          L 0.0625 1
+          Q 0 1, 0 0.9375
+          L 0 0.0625
+          Q 0 0, 0.0625 0
+          Z
+        "/>
+      </clipPath>
+      <clipPath id="right-card-clip" clipPathUnits="objectBoundingBox">
+        <path d="
+          M 0.9375 0
+          Q 1 0, 1 0.0625
+          L 1 0.9375
+          Q 1 1, 0.9375 1
+          L 0.0625 1
+          Q 0 1, 0 0.9375
+          L 0 0.66
+          C 0 0.63, 0.035 0.59, 0.042 0.55
+          A 0.042 0.08 0 0 0 0.042 0.45
+          C 0.035 0.41, 0 0.37, 0 0.34
+          L 0 0.0625
+          Q 0 0, 0.0625 0
+          Z
+        "/>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <div class="webgl-background"></div>
+
+  <div class="slides-container">
+    <!-- 1. 封面页 -->
+    <div class="slide cover-slide active">
+      <h1 class="cover-title">中国新能源汽车<br/>产业发展报告</h1>
+      <p class="cover-subtitle">2024年度市场分析与趋势展望</p>
+      <div class="cover-meta">
+        <p class="cover-author">演讲人：张三</p>
+        <p class="cover-date">2024年12月</p>
+      </div>
+    </div>
+
+    <!-- 2. 数据页 -->
+    <div class="slide">
+      <div class="title-region">
+        <h2 class="title">
+          <span class="title-decor"></span>
+          2024年市场核心数据
+        </h2>
+      </div>
+      <div class="summary-region">
+        <p class="summary">新能源汽车市场迎来历史性突破，渗透率首次超过45%</p>
+      </div>
+      <div class="content-region">
+        <div class="data-cards">
+          <div class="data-card highlighted">
+            <div class="card-header">
+              <i data-lucide="trending-up"></i>
+              <span class="card-title">销量</span>
+            </div>
+            <div class="card-divider"></div>
+            <div class="data-value">1280<span style="font-size:1rem;font-weight:400">万辆</span></div>
+            <div class="data-label">同比增长35%</div>
+          </div>
+          <div class="data-card">
+            <div class="card-header">
+              <i data-lucide="pie-chart"></i>
+              <span class="card-title">渗透率</span>
+            </div>
+            <div class="card-divider"></div>
+            <div class="data-value">45<span style="font-size:1rem;font-weight:400">%</span></div>
+            <div class="data-label">同比提升12个百分点</div>
+          </div>
+          <div class="data-card">
+            <div class="card-header">
+              <i data-lucide="globe"></i>
+              <span class="card-title">全球排名</span>
+            </div>
+            <div class="card-divider"></div>
+            <div class="data-value">No.1</div>
+            <div class="data-label">连续八年全球第一</div>
+          </div>
+        </div>
+      </div>
+      <div class="page-number-region">
+        <span class="page-number">1 / 8</span>
+      </div>
+    </div>
+
+    <!-- 3. 图表页 -->
+    <div class="slide">
+      <div class="title-region">
+        <h2 class="title">
+          <span class="title-decor"></span>
+          历年销量趋势
+        </h2>
+      </div>
+      <div class="summary-region">
+        <p class="summary">五年间销量增长近10倍，市场进入高速发展期</p>
+      </div>
+      <div class="content-region">
+        <div class="chart-layout">
+          <div class="chart-info">
+            <div class="chart-info-title">关键洞察</div>
+            <div class="chart-info-item"><span class="key-bold">2020年</span>起步期，销量仅136万辆</div>
+            <div class="chart-info-item"><span class="key-bold">2022年</span>爆发期，销量突破688万辆</div>
+            <div class="chart-info-item"><span class="key-bold">2024年</span>成熟期，销量达<span class="key-color">1280万辆</span></div>
+          </div>
+          <div class="chart-chart-card">
+            <div class="card-header">
+              <i data-lucide="bar-chart-3"></i>
+              <span class="card-title">年度销量对比</span>
+            </div>
+            <div class="card-divider"></div>
+            <div id="chart1" class="chart-container"></div>
+          </div>
+        </div>
+      </div>
+      <div class="page-number-region">
+        <span class="page-number">2 / 8</span>
+      </div>
+    </div>
+
+    <!-- 4. 时间线页 -->
+    <div class="slide">
+      <div class="title-region">
+        <h2 class="title">
+          <span class="title-decor"></span>
+          发展历程
+        </h2>
+      </div>
+      <div class="summary-region">
+        <p class="summary">从政策驱动到市场驱动，新能源汽车产业走向成熟</p>
+      </div>
+      <div class="content-region">
+        <div class="timeline-horizontal">
+          <div class="timeline-track">
+            <div class="timeline-line-h"></div>
+            <div class="timeline-nodes">
+              <div class="timeline-node">
+                <div class="timeline-dot-h"></div>
+                <div class="timeline-card">
+                  <div class="timeline-year-h">2020</div>
+                  <div class="timeline-title-h">起步期</div>
+                  <div class="timeline-desc-h">销量136万辆<br/>渗透率5%</div>
+                </div>
+              </div>
+              <div class="timeline-node">
+                <div class="timeline-dot-h"></div>
+                <div class="timeline-card">
+                  <div class="timeline-year-h">2021</div>
+                  <div class="timeline-title-h">增长期</div>
+                  <div class="timeline-desc-h">销量352万辆<br/>渗透率13%</div>
+                </div>
+              </div>
+              <div class="timeline-node">
+                <div class="timeline-dot-h"></div>
+                <div class="timeline-card">
+                  <div class="timeline-year-h">2022</div>
+                  <div class="timeline-title-h">爆发期</div>
+                  <div class="timeline-desc-h">销量688万辆<br/>渗透率26%</div>
+                </div>
+              </div>
+              <div class="timeline-node">
+                <div class="timeline-dot-h"></div>
+                <div class="timeline-card">
+                  <div class="timeline-year-h">2024</div>
+                  <div class="timeline-title-h">成熟期</div>
+                  <div class="timeline-desc-h">销量1280万辆<br/>渗透率45%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page-number-region">
+        <span class="page-number">3 / 8</span>
+      </div>
+    </div>
+
+    <!-- 5. 对比页 -->
+    <div class="slide">
+      <div class="title-region">
+        <h2 class="title">
+          <span class="title-decor"></span>
+          比亚迪 vs 特斯拉
+        </h2>
+      </div>
+      <div class="summary-region">
+        <p class="summary">全球新能源汽车市场两大巨头战略对比</p>
+      </div>
+      <div class="content-region">
+        <div class="feature-compare-layout">
+          <div class="feature-card left">
+            <div class="feature-card-header">
+              <div class="feature-card-icon">
+                <i data-lucide="car"></i>
+              </div>
+              <div>
+                <div class="feature-card-title">比亚迪</div>
+                <div class="feature-card-subtitle">垂直整合 · 全产业链</div>
+              </div>
+            </div>
+            <div class="feature-card-divider"></div>
+            <ul class="feature-list">
+              <li><span class="check-icon"><i data-lucide="check"></i></span><span class="feature-text"><strong>刀片电池</strong>技术，安全性能领先</span></li>
+              <li><span class="check-icon"><i data-lucide="check"></i></span><span class="feature-text"><strong>DM-i混动</strong>，油耗低至3.8L</span></li>
+              <li><span class="check-icon"><i data-lucide="check"></i></span><span class="feature-text"><strong>王朝+海洋</strong>双产品矩阵</span></li>
+              <li><span class="check-icon"><i data-lucide="check"></i></span><span class="feature-text"><strong>出海加速</strong>，覆盖100+国家</span></li>
+            </ul>
+          </div>
+          <div class="vs-badge">
+            <i data-lucide="git-compare"></i>
+          </div>
+          <div class="feature-card right">
+            <div class="feature-card-header">
+              <div class="feature-card-icon">
+                <i data-lucide="zap"></i>
+              </div>
+              <div>
+                <div class="feature-card-title">特斯拉</div>
+                <div class="feature-card-subtitle">科技先锋 · 品牌溢价</div>
+              </div>
+            </div>
+            <div class="feature-card-divider"></div>
+            <ul class="feature-list">
+              <li><span class="check-icon"><i data-lucide="check"></i></span><span class="feature-text"><strong>FSD</strong>自动驾驶，行业领先</span></li>
+              <li><span class="check-icon"><i data-lucide="check"></i></span><span class="feature-text"><strong>超级工厂</strong>，成本控制极致</span></li>
+              <li><span class="check-icon"><i data-lucide="check"></i></span><span class="feature-text"><strong>品牌力</strong>，全球高端定位</span></li>
+              <li><span class="check-icon"><i data-lucide="check"></i></span><span class="feature-text"><strong>充电网络</strong>，超充站遍布全球</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="page-number-region">
+        <span class="page-number">4 / 8</span>
+      </div>
+    </div>
+
+    <!-- 6. 引用页 -->
+    <div class="slide">
+      <div class="title-region">
+        <h2 class="title">
+          <span class="title-decor"></span>
+          行业声音
+        </h2>
+      </div>
+      <div class="summary-region">
+        <p class="summary">来自行业领袖的观点</p>
+      </div>
+      <div class="content-region">
+        <div class="quote-block">
+          <p class="quote-text">创新是引领发展的第一动力，新能源汽车是中国制造走向中国创造的成功典范。</p>
+          <p class="quote-author">行业专家</p>
+        </div>
+      </div>
+      <div class="page-number-region">
+        <span class="page-number">5 / 8</span>
+      </div>
+    </div>
+
+    <!-- 7. 列表页 -->
+    <div class="slide">
+      <div class="title-region">
+        <h2 class="title">
+          <span class="title-decor"></span>
+          核心竞争优势
+        </h2>
+      </div>
+      <div class="summary-region">
+        <p class="summary">中国新能源汽车产业的五大核心竞争力</p>
+      </div>
+      <div class="content-region">
+        <div class="list-content">
+          <div class="list-item">
+            <span class="list-decor"></span>
+            <span class="list-text"><span class="highlight">完整产业链</span>：从锂矿到整车，全球最完整的新能源汽车产业链</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor"></span>
+            <span class="list-text"><span class="highlight">技术突破</span>：刀片电池、CTP技术、800V高压平台等核心技术领先</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor"></span>
+            <span class="list-text"><span class="highlight">规模效应</span>：年销量超千万辆，成本优势显著</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor"></span>
+            <span class="list-text"><span class="highlight">智能化</span>：智能座舱、自动驾驶技术快速迭代</span>
+          </div>
+          <div class="list-item">
+            <span class="list-decor"></span>
+            <span class="list-text"><span class="highlight">出海战略</span>：产品出口全球100+国家和地区</span>
+          </div>
+        </div>
+      </div>
+      <div class="page-number-region">
+        <span class="page-number">6 / 8</span>
+      </div>
+    </div>
+
+    <!-- 8. 段落页 -->
+    <div class="slide">
+      <div class="title-region">
+        <h2 class="title">
+          <span class="title-decor"></span>
+          市场展望
+        </h2>
+      </div>
+      <div class="summary-region">
+        <p class="summary">2025年市场趋势与机遇分析</p>
+      </div>
+      <div class="content-region">
+        <div class="paragraph-content">
+          <p>中国新能源汽车市场在2024年迎来<span class="highlight-text">历史性突破</span>，全年销量达到1280万辆，渗透率首次突破45%。这一成就标志着新能源汽车已从<span class="highlight-bg">政策驱动转向市场驱动</span>，进入规模化发展新阶段。</p>
+          <p>展望2025年，随着电池成本持续下降、充电基础设施不断完善、智能化体验持续升级，新能源汽车市场有望继续保持高速增长，预计全年销量将突破<span class="highlight-text">1500万辆</span>，渗透率有望超过50%。</p>
+        </div>
+      </div>
+      <div class="page-number-region">
+        <span class="page-number">7 / 8</span>
+      </div>
+    </div>
+
+    <!-- 9. 尾页 -->
+    <div class="slide end-slide">
+      <h1 class="end-title">感谢聆听</h1>
+      <div class="end-meta">
+        <p class="end-author">演讲人：张三</p>
+        <p class="end-date">2024年12月</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 初始化 Lucide 图标
+    lucide.createIcons();
+
+    // 幻灯片导航
+    (function() {
+      const slides = document.querySelectorAll('.slide');
+      let currentIndex = 0;
+      const totalSlides = slides.length;
+
+      function showSlide(index) {
+        slides.forEach((slide, i) => {
+          slide.classList.remove('active');
+          if (i === index) {
+            slide.classList.add('active');
+          }
+        });
+      }
+
+      // 点击导航
+      document.querySelector('.slides-container').addEventListener('click', function(e) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const width = rect.width;
+
+        if (clickX > width * 0.6) {
+          if (currentIndex < totalSlides - 1) {
+            currentIndex++;
+            showSlide(currentIndex);
+          }
+        } else if (clickX < width * 0.4) {
+          if (currentIndex > 0) {
+            currentIndex--;
+            showSlide(currentIndex);
+          }
+        }
+      });
+
+      // 键盘导航
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          if (currentIndex < totalSlides - 1) {
+            currentIndex++;
+            showSlide(currentIndex);
+          }
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          if (currentIndex > 0) {
+            currentIndex--;
+            showSlide(currentIndex);
+          }
+        }
+      });
+    })();
+
+    // 初始化图表
+    const chart1 = echarts.init(document.getElementById('chart1'));
+    chart1.setOption({
+      color: ['#10B981', '#34D399', '#14B8A6', '#84CC16', '#059669'],
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        top: '10%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: ['2020', '2021', '2022', '2023', '2024'],
+        axisLine: { lineStyle: { color: '#E2E8F0' } },
+        axisLabel: { color: '#1E293B', fontSize: 11, fontWeight: 500 }
+      },
+      yAxis: {
+        type: 'value',
+        axisLine: { lineStyle: { color: '#E2E8F0' } },
+        axisLabel: { color: '#1E293B', fontSize: 11 },
+        splitLine: { lineStyle: { color: '#E2E8F0' } }
+      },
+      series: [{
+        type: 'bar',
+        data: [136, 352, 688, 949, 1280],
+        barWidth: '55%',
+        itemStyle: {
+          borderRadius: [8, 8, 0, 0]
+        },
+        label: {
+          show: true,
+          position: 'top',
+          color: '#0F172A',
+          fontSize: 13,
+          fontWeight: 700
+        },
+        animationDuration: 1500,
+        animationEasing: 'elasticOut'
+      }]
+    });
+
+    window.addEventListener('resize', () => {
+      chart1.resize();
+    });
+  </script>
+</body>
+</html>
