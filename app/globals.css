@@ -96,6 +96,10 @@
   --shadow-card-hover: 0 4px 12px oklch(0.5 0.02 160 / 0.12), 0 12px 32px oklch(0.5 0.02 160 / 0.08);
   --shadow-float: 0 8px 32px oklch(0.5 0.02 160 / 0.15);
   --shadow-primary: 0 4px 20px oklch(0.65 0.18 160 / 0.35);
+
+  /* 侧边栏宽度 */
+  --sidebar-width: 260px;
+  --header-height: 56px;
 }
 
 .dark {
@@ -147,16 +151,16 @@
   html {
     @apply font-sans;
   }
-  :root {
-    --sidebar-width: 260px;
-    --header-height: 56px;
-  }
 }
 
 @layer components {
   /* 主容器 - 弥散渐变背景 */
   .wizard-container {
-    @apply flex h-screen relative overflow-hidden;
+    display: flex !important;
+    height: 100vh !important;
+    width: 100% !important;
+    position: relative !important;
+    overflow: hidden !important;
     background:
       radial-gradient(ellipse at 20% 20%, oklch(0.9 0.08 160 / 0.25) 0%, transparent 50%),
       radial-gradient(ellipse at 80% 30%, oklch(0.85 0.06 170 / 0.2) 0%, transparent 45%),
@@ -167,8 +171,13 @@
 
   /* 侧边栏 - 毛玻璃 + 阴影 */
   .sidebar {
-    @apply w-[var(--sidebar-width)] h-full flex-shrink-0 overflow-auto;
-    background: var(--sidebar);
+    width: var(--sidebar-width) !important;
+    height: 100% !important;
+    flex-shrink: 0 !important;
+    overflow: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background: var(--sidebar) !important;
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     box-shadow: 4px 0 24px oklch(0.5 0.02 160 / 0.08);
@@ -176,55 +185,59 @@
 
   /* 主内容区 */
   .main-content {
-    @apply flex-1 h-full;
+    flex: 1 !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
     background: transparent;
-    display: flex;
-    flex-direction: column;
   }
 
   /* 步骤内容 */
   .step-content {
-    @apply p-8 max-w-3xl mx-auto;
+    padding: 2rem !important;
+    max-width: 48rem !important;
+    margin: 0 auto !important;
     min-height: 100%;
   }
 
   /* G2 连续圆角卡片 - 无边框阴影 */
   .glass-card {
-    background: var(--card);
+    background: var(--card) !important;
     backdrop-filter: blur(16px) saturate(150%);
     -webkit-backdrop-filter: blur(16px) saturate(150%);
-    border: none;
-    box-shadow: var(--shadow-card);
-    border-radius: var(--squircle-radius);
+    border: none !important;
+    box-shadow: var(--shadow-card) !important;
+    border-radius: var(--squircle-radius) !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .glass-card:hover {
-    box-shadow: var(--shadow-card-hover);
+    box-shadow: var(--shadow-card-hover) !important;
     transform: translateY(-2px);
   }
 
   /* 小尺寸卡片 */
   .glass-card-sm {
-    border-radius: var(--squircle-sm);
-    box-shadow: 0 1px 4px oklch(0.5 0.02 160 / 0.06), 0 4px 12px oklch(0.5 0.02 160 / 0.04);
+    border-radius: var(--squircle-sm) !important;
+    box-shadow: 0 1px 4px oklch(0.5 0.02 160 / 0.06), 0 4px 12px oklch(0.5 0.02 160 / 0.04) !important;
   }
 
   /* 大尺寸卡片 */
   .glass-card-lg {
-    border-radius: var(--squircle-lg);
-    box-shadow: var(--shadow-float);
+    border-radius: var(--squircle-lg) !important;
+    box-shadow: var(--shadow-float) !important;
   }
 
   /* 按钮发光效果 */
   .btn-primary-glow {
-    @apply relative overflow-hidden;
-    box-shadow: var(--shadow-primary);
+    position: relative !important;
+    overflow: hidden !important;
+    box-shadow: var(--shadow-primary) !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .btn-primary-glow:hover {
-    box-shadow: 0 6px 30px oklch(0.65 0.18 160 / 0.5);
+    box-shadow: 0 6px 30px oklch(0.65 0.18 160 / 0.5) !important;
     transform: translateY(-1px);
   }
 
@@ -235,26 +248,31 @@
 
   /* 步骤指示器 - G2 圆角 */
   .step-indicator {
-    @apply flex items-center justify-center text-sm font-medium transition-all duration-300;
-    width: 28px;
-    height: 28px;
-    border-radius: var(--squircle-sm);
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: var(--squircle-sm) !important;
   }
 
   .step-indicator.active {
-    background: var(--primary);
-    color: white;
+    background: var(--primary) !important;
+    color: white !important;
     box-shadow: 0 0 16px oklch(0.65 0.18 160 / 0.5);
   }
 
   .step-indicator.completed {
-    background: oklch(0.75 0.12 160);
-    color: white;
+    background: oklch(0.75 0.12 160) !important;
+    color: white !important;
   }
 
   .step-indicator.pending {
-    background: oklch(0.92 0.01 160);
-    color: oklch(0.5 0.02 160);
+    background: oklch(0.92 0.01 160) !important;
+    color: oklch(0.5 0.02 160) !important;
   }
 
   /* 输入框焦点 */
@@ -265,93 +283,126 @@
 
   /* 日志区域 */
   .log-area {
-    background: oklch(0.97 0.005 160 / 0.7);
+    background: oklch(0.97 0.005 160 / 0.7) !important;
     backdrop-filter: blur(8px);
-    border: none;
-    box-shadow: inset 0 1px 4px oklch(0.5 0.02 160 / 0.06);
-    border-radius: var(--squircle-sm);
+    border: none !important;
+    box-shadow: inset 0 1px 4px oklch(0.5 0.02 160 / 0.06) !important;
+    border-radius: var(--squircle-sm) !important;
   }
 
   /* 页面网格项 - G2 圆角 */
   .page-grid-item {
-    @apply flex items-center justify-center text-xs font-medium transition-all duration-200;
-    background: oklch(0.95 0.01 160);
-    box-shadow: 0 1px 3px oklch(0.5 0.02 160 / 0.05);
-    border-radius: var(--squircle-sm);
-    width: 28px;
-    height: 28px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease;
+    background: oklch(0.95 0.01 160) !important;
+    box-shadow: 0 1px 3px oklch(0.5 0.02 160 / 0.05) !important;
+    border-radius: var(--squircle-sm) !important;
+    width: 28px !important;
+    height: 28px !important;
   }
 
   .page-grid-item.completed {
-    background: oklch(0.85 0.1 160);
-    color: white;
-    box-shadow: 0 2px 6px oklch(0.65 0.18 160 / 0.2);
+    background: oklch(0.85 0.1 160) !important;
+    color: white !important;
+    box-shadow: 0 2px 6px oklch(0.65 0.18 160 / 0.2) !important;
   }
 
   .page-grid-item.active {
-    background: var(--primary);
-    color: white;
-    box-shadow: 0 0 12px oklch(0.65 0.18 160 / 0.4);
+    background: var(--primary) !important;
+    color: white !important;
+    box-shadow: 0 0 12px oklch(0.65 0.18 160 / 0.4) !important;
     animation: pulse 1.5s infinite;
   }
 
   /* 主题预览卡片 */
   .theme-preview-card {
-    border-radius: var(--squircle-lg);
-    box-shadow: var(--shadow-card);
-    border: none;
+    border-radius: var(--squircle-lg) !important;
+    box-shadow: var(--shadow-card) !important;
+    border: none !important;
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
   }
 
   .theme-preview-card:hover {
-    box-shadow: var(--shadow-card-hover);
-    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover) !important;
+    transform: translateY(-4px) scale(1.02);
   }
 
   .theme-preview-card.selected {
-    box-shadow: var(--shadow-primary), 0 0 0 3px var(--primary);
+    box-shadow: var(--shadow-primary), 0 0 0 3px var(--primary) !important;
   }
 
   /* 高级主题预览卡片 */
   .advanced-theme-card {
-    border-radius: var(--squircle-lg);
-    box-shadow: var(--shadow-card);
-    border: none;
+    border-radius: var(--squircle-lg) !important;
+    box-shadow: var(--shadow-card) !important;
+    border: none !important;
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: var(--card);
+    background: var(--card) !important;
+    cursor: pointer;
   }
 
   .advanced-theme-card:hover {
-    box-shadow: var(--shadow-card-hover);
-    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover) !important;
+    transform: translateY(-4px) scale(1.02);
   }
 
   .advanced-theme-card.selected {
-    box-shadow: var(--shadow-primary), 0 0 0 3px var(--primary);
+    box-shadow: var(--shadow-primary), 0 0 0 3px var(--primary) !important;
   }
 
   /* 大纲卡片 */
   .outline-card {
-    border-radius: var(--squircle-radius);
-    box-shadow: var(--shadow-card);
-    border: none;
-    background: var(--card);
+    border-radius: var(--squircle-radius) !important;
+    box-shadow: var(--shadow-card) !important;
+    border: none !important;
+    background: var(--card) !important;
     backdrop-filter: blur(12px);
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .outline-card:hover {
-    box-shadow: var(--shadow-card-hover);
+    box-shadow: var(--shadow-card-hover) !important;
     transform: translateY(-2px) scale(1.01);
   }
 
   /* 预览 iframe 容器 */
   .preview-container {
-    border-radius: var(--squircle-lg);
-    box-shadow: var(--shadow-float);
+    border-radius: var(--squircle-lg) !important;
+    box-shadow: var(--shadow-float) !important;
     overflow: hidden;
+  }
+
+  /* GenerateStep 专用样式 */
+  .generate-step-container {
+    display: flex !important;
+    height: 100% !important;
+    width: 100% !important;
+  }
+
+  .generate-left-panel {
+    width: 320px !important;
+    height: 100% !important;
+    overflow: hidden auto !important;
+    flex-shrink: 0 !important;
+    padding: 1.25rem !important;
+    background: oklch(1 0 0 / 0.4) !important;
+    border-right: 1px solid oklch(0.9 0.01 160) !important;
+  }
+
+  .generate-right-panel {
+    flex: 1 !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background: oklch(0.96 0.005 160 / 0.5) !important;
   }
 }
 
@@ -388,51 +439,30 @@
   cursor: pointer;
 }
 
-[data-inspector-root] {
-  /* Inspector 激活时的光标 */
-}
-
 [data-inspector-root] * {
   transition: outline 0.15s ease;
 }
 
-/* Inspector 选中元素 */
 .inspector-selected {
   outline: 2px solid oklch(0.65 0.18 160) !important;
   outline-offset: 2px;
 }
 
-/* GenerateStep 专用样式 */
-.generate-step-container {
-  display: flex;
-  height: 100%;
-  width: 100%;
-}
-
-.generate-left-panel {
-  width: 320px;
-  height: 100%;
-  overflow: hidden;
-  flex-shrink: 0;
-  padding: 20px;
-  background: color-mix(in oklab, var(--sidebar) 40%, transparent);
-}
-
 /* 全局覆盖 shadcn 组件圆角 */
 @layer utilities {
   .rounded-card {
-    border-radius: var(--squircle-radius);
+    border-radius: var(--squircle-radius) !important;
   }
 
   .rounded-card-sm {
-    border-radius: var(--squircle-sm);
+    border-radius: var(--squircle-sm) !important;
   }
 
   .rounded-card-lg {
-    border-radius: var(--squircle-lg);
+    border-radius: var(--squircle-lg) !important;
   }
 
   .rounded-card-xl {
-    border-radius: var(--squircle-xl);
+    border-radius: var(--squircle-xl) !important;
   }
 }

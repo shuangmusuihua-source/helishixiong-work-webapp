@@ -38,12 +38,6 @@ export function MainContent() {
     }
 
     // Advanced mode steps
-    // Step 1: Input (shared)
-    // Step 2: Outline (shared)
-    // Step 3: Advanced Theme Selection
-    // Step 3.5: Advanced Options (inserted between theme and generate)
-    // Step 4: Generate
-    // Step 5: Export
     switch (currentStep) {
       case 1:
         return <InputStep />;

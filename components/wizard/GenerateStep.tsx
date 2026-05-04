@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useWizardStore } from '@/store/useWizardStore';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Loader2, CheckCircle2, Sparkles } from 'lucide-react';
+import { Loader2, CheckCircle2, Sparkles, ArrowLeft, ArrowRight } from 'lucide-react';
 import { SSE_EVENT_TYPES } from '@/lib/utils';
 import { PreviewLayout } from '@/components/preview';
 import { PresenterMode } from '@/components/preview/presenter/PresenterMode';
@@ -37,31 +37,19 @@ export function GenerateStep() {
   const [currentPageTitle, setCurrentPageTitle] = useState<string>('');
   const [generationLogs, setGenerationLogs] = useState<string[]>([]);
   const [aiStreamingText, setAiStreamingText] = useState<string>('');
-  const [previewHtml, setPreviewHtml] = useState<string>('');
   const [showPresenter, setShowPresenter] = useState(false);
-  const hasStartedRef = useRef(false); // 使用 ref 防止重复启动，避免状态更新问题
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  const updateIframeContent = useCallback((html: string) => {
-    const doc = iframeRef.current?.contentDocument;
-    if (doc) {
-      doc.open();
-      doc.write(html);
-      doc.close();
-    }
-  }, []);
+  const hasStartedRef = useRef(false);
 
   const startGeneration = useCallback(async () => {
     if (!outline || isGenerating || hasStartedRef.current) return;
 
-    hasStartedRef.current = true; // 标记已启动
+    hasStartedRef.current = true;
     setGenerating(true);
     setError(null);
     updateProgress(0, outline.slides.length);
     setGenerationLogs(['🚀 开始生成...']);
     setAiStreamingText('');
-    setPreviewHtml('');
-    setSlidePages([]); // 重置页面数组
+    setSlidePages([]);
 
     try {
       setGenerationLogs(prev => [...prev, '📡 连接 AI...']);
@@ -125,32 +113,20 @@ export function GenerateStep() {
 
             case SSE_EVENT_TYPES.PAGE_COMPLETE:
               if (data.html) {
-                console.log('[GenerateStep] PAGE_COMPLETE received, page:', data.page_num, 'HTML length:', data.html.length);
-                console.log('[GenerateStep] PAGE_COMPLETE HTML preview:', data.html.substring(0, 500));
-                appendSlidePage(data.html); // 存储单独页面
-                setPreviewHtml(data.html);
+                appendSlidePage(data.html);
                 setGenerationLogs(prev => [...prev, '   ✅ HTML 生成']);
-              } else {
-                console.warn('[GenerateStep] PAGE_COMPLETE received but no HTML');
               }
               break;
 
             case SSE_EVENT_TYPES.COMPLETE:
               if (data.file_id && data.html) {
-                console.log('[GenerateStep] COMPLETE received, pages count:', data.pages?.length);
-                console.log('[GenerateStep] COMPLETE first page HTML preview:', data.pages?.[0]?.substring(0, 500));
                 setFileId(data.file_id);
                 setGeneratedHtml(data.html);
-                setPreviewHtml(data.html);
-                // 如果 API 返回了 pages 数组，使用它；否则保持已收集的 slidePages
                 if (data.pages && Array.isArray(data.pages)) {
                   setSlidePages(data.pages);
-                  console.log('[GenerateStep] Set slidePages from API, count:', data.pages.length);
                 }
                 setGenerationLogs(prev => [...prev, '🎉 全部完成！']);
                 setGenerating(false);
-              } else {
-                console.warn('[GenerateStep] COMPLETE received but missing data');
               }
               break;
 
@@ -164,18 +140,16 @@ export function GenerateStep() {
       setError('生成失败，请重试');
       setGenerationLogs(prev => [...prev, '❌ 生成失败']);
       setGenerating(false);
-      hasStartedRef.current = false; // 允许重试
+      hasStartedRef.current = false;
     }
   }, [outline, selectedTheme, workMode, advancedTheme, aesthetic, pageCount, textDensity, motionLevel, isGenerating, appendSlidePage, setGeneratedHtml, setFileId, setGenerating, setSlidePages, updateProgress]);
 
-  // 只在组件首次挂载且有 outline 时启动生成
   useEffect(() => {
     if (outline && !hasStartedRef.current && !generatedHtml && !isGenerating) {
       startGeneration();
     }
-  }, [outline]); // 只依赖 outline，避免重复触发
+  }, [outline]);
 
-  // 限制日志数量防止内存溢出
   const displayLogs = useMemo(() => generationLogs.slice(-50), [generationLogs]);
 
   if (!outline) {
@@ -191,58 +165,163 @@ export function GenerateStep() {
   const isActivelyGenerating = isGenerating || (slidePages.length === 0 && !error);
 
   return (
-    <div className="generate-step-container flex h-full w-full">
+    <div
+      style={{
+        display: 'flex',
+        height: '100%',
+        width: '100%',
+      }}
+    >
       {/* 左侧面板 */}
-      <div className="generate-left-panel w-80 h-full overflow-hidden flex-shrink-0 p-5 bg-sidebar/40">
-        <div className="flex items-center gap-2 mb-5">
+      <div
+        style={{
+          width: '320px',
+          height: '100%',
+          overflow: 'hidden auto',
+          flexShrink: 0,
+          padding: '1.25rem',
+          background: 'rgba(255, 255, 255, 0.4)',
+          borderRight: '1px solid rgba(217, 224, 220, 1)',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* 标题 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
           <Sparkles className="h-5 w-5 text-primary" />
-          <h2 className="text-lg font-semibold">生成预览</h2>
+          <h2 style={{ fontSize: '1.125rem', fontWeight: 600 }}>生成预览</h2>
         </div>
 
         {/* 进度卡片 */}
-        <div className="glass-card p-4 mb-4">
-          <div className="flex items-center gap-2 mb-3">
-            {isActivelyGenerating ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : <CheckCircle2 className="h-4 w-4 text-primary" />}
-            <span className="text-sm font-medium">{isActivelyGenerating ? '正在生成...' : '生成完成'}</span>
+        <div
+          style={{
+            background: 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(16px)',
+            borderRadius: '16px',
+            boxShadow: '0 2px 8px rgba(90, 103, 95, 0.08), 0 8px 24px rgba(90, 103, 95, 0.06)',
+            padding: '1rem',
+            marginBottom: '1rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            {isActivelyGenerating ? (
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4 text-primary" />
+            )}
+            <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+              {isActivelyGenerating ? '正在生成...' : '生成完成'}
+            </span>
           </div>
-          <div className="flex justify-between text-xs text-muted-foreground mb-2">
-            <span className="truncate mr-2">{currentPageTitle || '准备中...'}</span>
-            <span className="font-medium">{generatedPages}/{totalPages}</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem' }}>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '0.5rem' }}>
+              {currentPageTitle || '准备中...'}
+            </span>
+            <span style={{ fontWeight: 500 }}>{generatedPages}/{totalPages}</span>
           </div>
-          <Progress value={progress} className="h-1.5 progress-glow" />
+          <Progress value={progress} className="h-1.5" />
         </div>
 
         {/* AI 输出 */}
         {aiStreamingText && (
-          <div className="glass-card glass-card-sm p-3 mb-4">
-            <div className="flex items-center gap-2 mb-2">
+          <div
+            style={{
+              background: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(16px)',
+              borderRadius: '8px',
+              boxShadow: '0 1px 4px rgba(90, 103, 95, 0.06)',
+              padding: '0.75rem',
+              marginBottom: '1rem',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <Loader2 className="h-3 w-3 animate-spin text-primary" />
-              <span className="text-xs font-medium text-primary">AI 思考中</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--primary)' }}>AI 思考中</span>
             </div>
-            <div className="font-mono text-xs text-muted-foreground max-h-20 overflow-y-auto whitespace-pre-wrap break-all">
+            <div
+              style={{
+                fontFamily: 'monospace',
+                fontSize: '0.75rem',
+                color: 'var(--muted-foreground)',
+                maxHeight: '5rem',
+                overflowY: 'auto',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-all',
+              }}
+            >
               {aiStreamingText.slice(-150)}
             </div>
           </div>
         )}
 
         {/* 日志 */}
-        <div className="mb-4">
-          <span className="text-xs text-muted-foreground mb-2 block">生成日志</span>
-          <div className="log-area p-3 h-32 overflow-y-auto">
+        <div style={{ marginBottom: '1rem' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginBottom: '0.5rem', display: 'block' }}>
+            生成日志
+          </span>
+          <div
+            style={{
+              background: 'rgba(246, 249, 247, 0.7)',
+              backdropFilter: 'blur(8px)',
+              borderRadius: '8px',
+              boxShadow: 'inset 0 1px 4px rgba(90, 103, 95, 0.06)',
+              padding: '0.75rem',
+              height: '8rem',
+              overflowY: 'auto',
+            }}
+          >
             {displayLogs.map((log, idx) => (
-              <div key={idx} className={`text-xs py-0.5 ${log.includes('✅') || log.includes('🎉') ? 'text-primary' : log.includes('❌') ? 'text-destructive' : 'text-muted-foreground'}`}>
+              <div
+                key={idx}
+                style={{
+                  fontSize: '0.75rem',
+                  padding: '0.125rem 0',
+                  color: log.includes('✅') || log.includes('🎉')
+                    ? 'var(--primary)'
+                    : log.includes('❌')
+                    ? 'var(--destructive)'
+                    : 'var(--muted-foreground)',
+                }}
+              >
                 {log}
               </div>
             ))}
-            {isActivelyGenerating && <div className="animate-pulse text-primary text-xs">▊</div>}
+            {isActivelyGenerating && (
+              <div className="animate-pulse text-primary" style={{ fontSize: '0.75rem' }}>▊</div>
+            )}
           </div>
         </div>
 
         {/* 页面网格 */}
-        <div className="mb-4">
-          <div className="grid grid-cols-6 gap-1.5">
+        <div style={{ marginBottom: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '0.375rem' }}>
             {outline.slides.map((_, idx) => (
-              <div key={idx} className={`page-grid-item ${generatedPages > idx ? 'completed' : generatedPages === idx && isActivelyGenerating ? 'active' : ''}`}>
+              <div
+                key={idx}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '8px',
+                  background: generatedPages > idx
+                    ? 'rgba(129, 197, 148, 1)'
+                    : generatedPages === idx && isActivelyGenerating
+                    ? 'var(--primary)'
+                    : 'rgba(223, 231, 226, 1)',
+                  color: generatedPages > idx || (generatedPages === idx && isActivelyGenerating)
+                    ? 'white'
+                    : 'rgba(90, 103, 95, 1)',
+                  boxShadow: generatedPages > idx
+                    ? '0 2px 6px rgba(0, 171, 109, 0.2)'
+                    : generatedPages === idx && isActivelyGenerating
+                    ? '0 0 12px rgba(0, 171, 109, 0.4)'
+                    : '0 1px 3px rgba(90, 103, 95, 0.05)',
+                }}
+              >
                 {generatedPages > idx ? '✓' : idx + 1}
               </div>
             ))}
@@ -250,14 +329,40 @@ export function GenerateStep() {
         </div>
 
         {/* 按钮 */}
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => setStep(workMode === 'advanced' ? 4 : 3)} className="flex-1">返回</Button>
-          {!isActivelyGenerating && slidePages.length > 0 && <Button size="sm" onClick={() => setStep(workMode === 'advanced' ? 6 : 5)} className="flex-1 btn-primary-glow">下一步</Button>}
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setStep(workMode === 'advanced' ? 4 : 3)}
+            style={{ flex: 1 }}
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            返回
+          </Button>
+          {!isActivelyGenerating && slidePages.length > 0 && (
+            <Button
+              size="sm"
+              onClick={() => setStep(workMode === 'advanced' ? 6 : 5)}
+              style={{ flex: 1 }}
+            >
+              下一步
+              <ArrowRight className="h-4 w-4 ml-1" />
+            </Button>
+          )}
         </div>
       </div>
 
       {/* 右侧预览 */}
-      <div className="flex-1 flex flex-col h-full min-w-0 bg-muted/10">
+      <div
+        style={{
+          flex: 1,
+          height: '100%',
+          minWidth: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          background: 'rgba(239, 243, 241, 0.5)',
+        }}
+      >
         {showPresenter ? (
           <PresenterMode onExit={() => setShowPresenter(false)} />
         ) : (
