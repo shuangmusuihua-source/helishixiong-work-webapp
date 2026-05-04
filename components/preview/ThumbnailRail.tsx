@@ -2,20 +2,32 @@
 
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+import { SlideCanvas, CANVAS_WIDTH, CANVAS_HEIGHT } from './SlideCanvas';
 
-const CANVAS_WIDTH = 1920;
-const CANVAS_HEIGHT = 1080;
 const THUMB_WIDTH = 184;
+const THUMB_SCALE = THUMB_WIDTH / CANVAS_WIDTH;
+const THUMB_HEIGHT = CANVAS_HEIGHT * THUMB_SCALE;
 
 interface ThumbnailRailProps {
   pages: string[];
   current: number;
   onSelect: (index: number) => void;
+  /** 设计系统（用于高级主题） */
+  design?: import('@/types').DesignSystem;
+  /** 是否使用 React 渲染模式 */
+  useReactMode?: boolean;
 }
 
-export function ThumbnailRail({ pages, current, onSelect }: ThumbnailRailProps) {
+export function ThumbnailRail({
+  pages,
+  current,
+  onSelect,
+  design,
+  useReactMode = false,
+}: ThumbnailRailProps) {
   const activeRef = useRef<HTMLButtonElement>(null);
-  const [iframeDocs, setIframeDocs] = useState<Map<number, Document>>(new Map());
+
+  console.log('[ThumbnailRail] Rendering with pages:', pages.length, 'current:', current);
 
   // 自动滚动到当前页
   useEffect(() => {
@@ -25,21 +37,6 @@ export function ThumbnailRail({ pages, current, onSelect }: ThumbnailRailProps) 
       behavior: reduceMotion ? 'auto' : 'smooth',
     });
   }, [current]);
-
-  // 初始化 iframe 内容
-  const initIframe = useCallback((index: number, iframe: HTMLIFrameElement | null) => {
-    if (!iframe || !pages[index]) return;
-    const doc = iframe.contentDocument;
-    if (doc) {
-      doc.open();
-      doc.write(pages[index]);
-      doc.close();
-      setIframeDocs((prev) => new Map(prev).set(index, doc));
-    }
-  }, [pages]);
-
-  const scale = THUMB_WIDTH / CANVAS_WIDTH;
-  const height = CANVAS_HEIGHT * scale;
 
   return (
     <div className="h-full overflow-y-auto border-r border-border bg-sidebar/50">
@@ -52,18 +49,21 @@ export function ThumbnailRail({ pages, current, onSelect }: ThumbnailRailProps) 
             {pages.length.toString().padStart(2, '0')}
           </span>
         </div>
-        {pages.map((_, i) => {
+        {pages.map((pageHtml, i) => {
           const active = i === current;
           return (
             <button
               key={i}
               type="button"
               ref={active ? activeRef : undefined}
-              onClick={() => onSelect(i)}
+              onClick={() => {
+                console.log('[ThumbnailRail] Button clicked, index:', i);
+                onSelect(i);
+              }}
               aria-label={`跳转到第 ${i + 1} 页`}
               aria-current={active ? 'true' : undefined}
               className={cn(
-                'group/thumb flex items-start gap-2.5 rounded-[6px] p-1.5 text-left transition-colors',
+                'group/thumb flex items-start gap-2.5 rounded-[6px] p-1.5 text-left transition-colors relative',
                 'hover:bg-muted/60',
                 active && 'bg-muted',
               )}
@@ -83,23 +83,16 @@ export function ThumbnailRail({ pages, current, onSelect }: ThumbnailRailProps) 
                     ? 'border-primary shadow-[0_0_0_1px_hsl(var(--primary))]'
                     : 'border-border group-hover/thumb:border-foreground/25',
                 )}
-                style={{ width: THUMB_WIDTH, height }}
+                style={{ width: THUMB_WIDTH, height: THUMB_HEIGHT }}
               >
-                <div
-                  style={{
-                    width: CANVAS_WIDTH,
-                    height: CANVAS_HEIGHT,
-                    transform: `scale(${scale})`,
-                    transformOrigin: 'top left',
-                  }}
-                >
-                  <iframe
-                    ref={(el) => initIframe(i, el)}
-                    className="w-full h-full border-0"
-                    title={`缩略图 ${i + 1}`}
-                    sandbox="allow-scripts"
-                  />
-                </div>
+                <SlideCanvas
+                  html={pageHtml}
+                  scale={THUMB_SCALE}
+                  center={false}
+                  flat
+                  freezeMotion
+                  design={design}
+                />
                 {active && (
                   <span
                     aria-hidden

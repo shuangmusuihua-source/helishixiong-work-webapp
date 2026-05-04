@@ -18,6 +18,12 @@ export function GenerateStep() {
     totalPages,
     isGenerating,
     slidePages,
+    workMode,
+    advancedTheme,
+    aesthetic,
+    pageCount,
+    textDensity,
+    motionLevel,
     setGenerating,
     updateProgress,
     setGeneratedHtml,
@@ -33,6 +39,7 @@ export function GenerateStep() {
   const [aiStreamingText, setAiStreamingText] = useState<string>('');
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const [showPresenter, setShowPresenter] = useState(false);
+  const hasStartedRef = useRef(false); // 使用 ref 防止重复启动，避免状态更新问题
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const updateIframeContent = useCallback((html: string) => {
@@ -45,8 +52,9 @@ export function GenerateStep() {
   }, []);
 
   const startGeneration = useCallback(async () => {
-    if (!outline || isGenerating) return;
+    if (!outline || isGenerating || hasStartedRef.current) return;
 
+    hasStartedRef.current = true; // 标记已启动
     setGenerating(true);
     setError(null);
     updateProgress(0, outline.slides.length);
@@ -61,7 +69,15 @@ export function GenerateStep() {
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ outline, theme_id: selectedTheme }),
+        body: JSON.stringify({
+          outline,
+          theme_id: workMode === 'advanced' ? advancedTheme : selectedTheme,
+          work_mode: workMode,
+          aesthetic,
+          page_count: pageCount,
+          text_density: textDensity,
+          motion_level: motionLevel,
+        }),
       });
 
       if (!response.ok) throw new Error('生成请求失败');
@@ -109,23 +125,32 @@ export function GenerateStep() {
 
             case SSE_EVENT_TYPES.PAGE_COMPLETE:
               if (data.html) {
+                console.log('[GenerateStep] PAGE_COMPLETE received, page:', data.page_num, 'HTML length:', data.html.length);
+                console.log('[GenerateStep] PAGE_COMPLETE HTML preview:', data.html.substring(0, 500));
                 appendSlidePage(data.html); // 存储单独页面
                 setPreviewHtml(data.html);
                 setGenerationLogs(prev => [...prev, '   ✅ HTML 生成']);
+              } else {
+                console.warn('[GenerateStep] PAGE_COMPLETE received but no HTML');
               }
               break;
 
             case SSE_EVENT_TYPES.COMPLETE:
               if (data.file_id && data.html) {
+                console.log('[GenerateStep] COMPLETE received, pages count:', data.pages?.length);
+                console.log('[GenerateStep] COMPLETE first page HTML preview:', data.pages?.[0]?.substring(0, 500));
                 setFileId(data.file_id);
                 setGeneratedHtml(data.html);
                 setPreviewHtml(data.html);
                 // 如果 API 返回了 pages 数组，使用它；否则保持已收集的 slidePages
                 if (data.pages && Array.isArray(data.pages)) {
                   setSlidePages(data.pages);
+                  console.log('[GenerateStep] Set slidePages from API, count:', data.pages.length);
                 }
                 setGenerationLogs(prev => [...prev, '🎉 全部完成！']);
                 setGenerating(false);
+              } else {
+                console.warn('[GenerateStep] COMPLETE received but missing data');
               }
               break;
 
@@ -139,14 +164,16 @@ export function GenerateStep() {
       setError('生成失败，请重试');
       setGenerationLogs(prev => [...prev, '❌ 生成失败']);
       setGenerating(false);
+      hasStartedRef.current = false; // 允许重试
     }
-  }, [outline, selectedTheme, isGenerating, appendSlidePage, setGeneratedHtml, setFileId, setGenerating, setSlidePages, updateProgress]);
+  }, [outline, selectedTheme, workMode, advancedTheme, aesthetic, pageCount, textDensity, motionLevel, isGenerating, appendSlidePage, setGeneratedHtml, setFileId, setGenerating, setSlidePages, updateProgress]);
 
+  // 只在组件首次挂载且有 outline 时启动生成
   useEffect(() => {
-    if (outline && !generatedHtml && !isGenerating && previewHtml === '') {
+    if (outline && !hasStartedRef.current && !generatedHtml && !isGenerating) {
       startGeneration();
     }
-  }, [outline, generatedHtml, isGenerating, previewHtml, startGeneration]);
+  }, [outline]); // 只依赖 outline，避免重复触发
 
   // 限制日志数量防止内存溢出
   const displayLogs = useMemo(() => generationLogs.slice(-50), [generationLogs]);
@@ -155,7 +182,7 @@ export function GenerateStep() {
     return (
       <div className="step-content">
         <p className="text-muted-foreground">请先完成主题选择</p>
-        <Button onClick={() => setStep(3)} className="mt-4">返回</Button>
+        <Button onClick={() => setStep(workMode === 'advanced' ? 3 : 3)} className="mt-4">返回</Button>
       </div>
     );
   }
@@ -164,9 +191,9 @@ export function GenerateStep() {
   const isActivelyGenerating = isGenerating || (slidePages.length === 0 && !error);
 
   return (
-    <div className="flex h-full w-full">
+    <div className="generate-step-container flex h-full w-full">
       {/* 左侧面板 */}
-      <div className="w-80 h-full overflow-hidden flex-shrink-0 p-5 bg-sidebar/40">
+      <div className="generate-left-panel w-80 h-full overflow-hidden flex-shrink-0 p-5 bg-sidebar/40">
         <div className="flex items-center gap-2 mb-5">
           <Sparkles className="h-5 w-5 text-primary" />
           <h2 className="text-lg font-semibold">生成预览</h2>
@@ -224,8 +251,8 @@ export function GenerateStep() {
 
         {/* 按钮 */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => setStep(3)} className="flex-1">返回</Button>
-          {!isActivelyGenerating && slidePages.length > 0 && <Button size="sm" onClick={() => setStep(5)} className="flex-1 btn-primary-glow">下一步</Button>}
+          <Button variant="outline" size="sm" onClick={() => setStep(workMode === 'advanced' ? 4 : 3)} className="flex-1">返回</Button>
+          {!isActivelyGenerating && slidePages.length > 0 && <Button size="sm" onClick={() => setStep(workMode === 'advanced' ? 6 : 5)} className="flex-1 btn-primary-glow">下一步</Button>}
         </div>
       </div>
 

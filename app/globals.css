@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@source "../components/**/*.tsx";
+@source "../lib/**/*.ts";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -175,6 +178,8 @@
   .main-content {
     @apply flex-1 h-full;
     background: transparent;
+    display: flex;
+    flex-direction: column;
   }
 
   /* 步骤内容 */
@@ -308,6 +313,25 @@
     box-shadow: var(--shadow-primary), 0 0 0 3px var(--primary);
   }
 
+  /* 高级主题预览卡片 */
+  .advanced-theme-card {
+    border-radius: var(--squircle-lg);
+    box-shadow: var(--shadow-card);
+    border: none;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--card);
+  }
+
+  .advanced-theme-card:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-4px);
+  }
+
+  .advanced-theme-card.selected {
+    box-shadow: var(--shadow-primary), 0 0 0 3px var(--primary);
+  }
+
   /* 大纲卡片 */
   .outline-card {
     border-radius: var(--squircle-radius);
@@ -355,6 +379,43 @@
 
 .animate-fade-in {
   animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Inspector 样式 */
+[data-inspector-hover] {
+  outline: 2px solid oklch(0.65 0.18 160 / 0.6) !important;
+  outline-offset: 2px;
+  cursor: pointer;
+}
+
+[data-inspector-root] {
+  /* Inspector 激活时的光标 */
+}
+
+[data-inspector-root] * {
+  transition: outline 0.15s ease;
+}
+
+/* Inspector 选中元素 */
+.inspector-selected {
+  outline: 2px solid oklch(0.65 0.18 160) !important;
+  outline-offset: 2px;
+}
+
+/* GenerateStep 专用样式 */
+.generate-step-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.generate-left-panel {
+  width: 320px;
+  height: 100%;
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 20px;
+  background: color-mix(in oklab, var(--sidebar) 40%, transparent);
 }
 
 /* 全局覆盖 shadcn 组件圆角 */

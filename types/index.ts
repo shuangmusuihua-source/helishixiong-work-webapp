@@ -179,6 +179,11 @@ export interface PlanRequest {
 export interface GenerateRequest {
   outline: Outline;
   theme_id: string;
+  work_mode?: WorkMode;
+  aesthetic?: string | null;
+  page_count?: number | null;
+  text_density?: TextDensity | null;
+  motion_level?: MotionLevel | null;
 }
 
 // API 响应类型
@@ -214,29 +219,33 @@ export type MotionLevel = 'static' | 'subtle' | 'rich';
 // 高级模式主题
 export type AdvancedTheme = 'neon-terminal' | 'paper-press' | 'editorial-noir';
 
-// 设计系统（简化版，用于高级模式）
+// 设计系统类型（open-slide 兼容版本）
+export interface DesignPalette {
+  bg: string;
+  text: string;
+  accent: string;
+  surface?: string;
+  muted?: string;
+}
+
+export interface DesignFonts {
+  display: string;
+  body: string;
+  mono?: string;
+}
+
+export interface DesignTypeScale {
+  hero: number;
+  body: number;
+  heading?: number;
+  caption?: number;
+}
+
+// 设计系统（open-slide 兼容版本）
+// 核心字段与 open-slide 保持一致，可选字段用于扩展
 export interface DesignSystem {
-  palette: {
-    background: string;
-    foreground: string;
-    primary: string;
-    secondary: string;
-    accent: string;
-    muted: string;
-  };
-  fonts: {
-    heading: string;
-    body: string;
-    mono: string;
-  };
-  typeScale: {
-    xs: string;
-    sm: string;
-    base: string;
-    lg: string;
-    xl: string;
-    '2xl': string;
-    '3xl': string;
-  };
-  radius: string;
+  palette: DesignPalette;
+  fonts: DesignFonts;
+  typeScale: DesignTypeScale;
+  radius: number;
 }
