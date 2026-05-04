@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Zap, Wand2, ArrowRight } from 'lucide-react';
 
-export default function HomePage() {
+export default function LandingPage() {
   return (
     <main className="min-h-screen relative overflow-hidden">
       {/* 弥散渐变背景 */}
@@ -33,13 +33,15 @@ export default function HomePage() {
             分钟级完成，一键导出
           </p>
 
-          <Link href="/create">
-            <Button size="lg" className="text-lg px-10 py-6 rounded-card-lg btn-primary-glow">
-              <Wand2 className="mr-2 h-5 w-5" />
-              开始创建
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
+          <div className="flex items-center justify-center gap-4">
+            <Link href="/login">
+              <Button size="lg" className="text-lg px-10 py-6 rounded-card-lg btn-primary-glow">
+                <Wand2 className="mr-2 h-5 w-5" />
+                开始使用
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Features */}
@@ -60,12 +62,25 @@ export default function HomePage() {
             description="多种专业主题，一键切换风格"
           />
         </div>
+
+        {/* 底部 */}
+        <div className="text-center mt-20 text-sm text-muted-foreground">
+          <p>© 2024 Kami Slides. All rights reserved.</p>
+        </div>
       </div>
     </main>
   );
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
   return (
     <div className="glass-card p-5">
       <div className="flex items-center gap-3 mb-2">
