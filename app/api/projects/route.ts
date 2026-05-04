@@ -10,30 +10,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: '未登录' }, { status: 401 });
   }
 
-  const { searchParams } = new URL(request.url);
-  const type = searchParams.get('type'); // 'slides' | 'document'
-
   try {
     const projects = await prisma.project.findMany({
       where: {
         userId: user.id,
-        // 可以根据 workMode 过滤
-        ...(type === 'slides' ? {} : {}),
       },
       orderBy: { updatedAt: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        themeId: true,
-        workMode: true,
-        coverImage: true,
-        createdAt: true,
-        updatedAt: true,
-        outline: true,
-      },
     });
 
-    return NextResponse.json({ projects });
+    // 解析 JSON 字段
+    const parsedProjects = projects.map((p) => ({
+      ...p,
+      outline: JSON.parse(p.outline),
+      slidePages: JSON.parse(p.slidePages),
+    }));
+
+    return NextResponse.json({ projects: parsedProjects });
   } catch (error) {
     console.error('Get projects error:', error);
     return NextResponse.json({ error: '获取项目列表失败' }, { status: 500 });
@@ -60,15 +52,21 @@ export async function POST(request: NextRequest) {
       data: {
         userId: user.id,
         title,
-        outline,
+        outline: JSON.stringify(outline),
         themeId,
         workMode,
         coverImage,
-        slidePages: slidePages || [],
+        slidePages: JSON.stringify(slidePages || []),
       },
     });
 
-    return NextResponse.json({ project });
+    return NextResponse.json({
+      project: {
+        ...project,
+        outline: JSON.parse(project.outline),
+        slidePages: JSON.parse(project.slidePages),
+      },
+    });
   } catch (error) {
     console.error('Create project error:', error);
     return NextResponse.json({ error: '创建项目失败' }, { status: 500 });

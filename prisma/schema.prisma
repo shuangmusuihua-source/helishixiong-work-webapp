@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
@@ -25,11 +25,11 @@ model Project {
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   title       String
-  outline     Json
+  outline     String    // JSON string
   themeId     String
   workMode    String    // 'template' | 'advanced'
   coverImage  String?
-  slidePages  Json      // string[] - each slide's HTML
+  slidePages  String    // JSON string - string[] of HTML
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 

@@ -2,6 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 
+// 解析项目 JSON 字段
+function parseProject(project: {
+  id: string;
+  userId: string;
+  title: string;
+  outline: string;
+  themeId: string;
+  workMode: string;
+  coverImage: string | null;
+  slidePages: string;
+  createdAt: Date;
+  updatedAt: Date;
+}) {
+  return {
+    ...project,
+    outline: JSON.parse(project.outline),
+    slidePages: JSON.parse(project.slidePages),
+  };
+}
+
 // GET - 获取单个项目
 export async function GET(
   request: NextRequest,
@@ -27,7 +47,7 @@ export async function GET(
       return NextResponse.json({ error: '项目不存在' }, { status: 404 });
     }
 
-    return NextResponse.json({ project });
+    return NextResponse.json({ project: parseProject(project) });
   } catch (error) {
     console.error('Get project error:', error);
     return NextResponse.json({ error: '获取项目失败' }, { status: 500 });
@@ -48,7 +68,6 @@ export async function DELETE(
   const { id } = await params;
 
   try {
-    // 验证项目所有权
     const project = await prisma.project.findFirst({
       where: { id, userId: user.id },
     });
@@ -84,7 +103,6 @@ export async function PATCH(
   try {
     const body = await request.json();
 
-    // 验证项目所有权
     const existingProject = await prisma.project.findFirst({
       where: { id, userId: user.id },
     });
@@ -93,12 +111,17 @@ export async function PATCH(
       return NextResponse.json({ error: '项目不存在' }, { status: 404 });
     }
 
+    // 处理 JSON 字段
+    const updateData: Record<string, unknown> = { ...body };
+    if (body.outline) updateData.outline = JSON.stringify(body.outline);
+    if (body.slidePages) updateData.slidePages = JSON.stringify(body.slidePages);
+
     const project = await prisma.project.update({
       where: { id },
-      data: body,
+      data: updateData,
     });
 
-    return NextResponse.json({ project });
+    return NextResponse.json({ project: parseProject(project) });
   } catch (error) {
     console.error('Update project error:', error);
     return NextResponse.json({ error: '更新项目失败' }, { status: 500 });
