@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { generateSlideHtml, generateFullHtml, type StreamCallback } from '@/lib/generator';
+import { generateSlideHtml, generateFullHtml, generateSinglePageHtml, type StreamCallback } from '@/lib/generator';
 import { SSE_EVENT_TYPES } from '@/lib/utils';
 import type { GenerateRequest } from '@/types';
 
@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
 
     const encoder = new TextEncoder();
     const slidesHtml: string[] = [];
+    const singlePageHtmls: string[] = []; // 存储单页完整 HTML
     const context = `主题：${outline.title}\n大纲概览：\n${outline.slides
       .map((s, i) => `${i + 1}. ${s.title}${s.page_type === 'content' && s.summary ? ` - ${s.summary}` : ''}`)
       .join('\n')}`;
@@ -43,13 +44,19 @@ export async function POST(request: NextRequest) {
 
             const result = await generateSlideHtml(outline.slides[i], theme_id, outline.slides.length, context, streamCallback);
             slidesHtml.push(result.html);
-            send({ type: SSE_EVENT_TYPES.PAGE_COMPLETE, page_num: i + 1, html: result.html });
+
+            // 生成单页完整 HTML 用于缩略图
+            const singleHtml = await generateSinglePageHtml(result.html, theme_id, i, outline.slides.length);
+            singlePageHtmls.push(singleHtml);
+
+            // 发送完整页面 HTML
+            send({ type: SSE_EVENT_TYPES.PAGE_COMPLETE, page_num: i + 1, html: singleHtml });
           }
 
           const fullHtml = await generateFullHtml(outline, theme_id, slidesHtml);
           const fileId = `slides-${Date.now()}`;
 
-          send({ type: SSE_EVENT_TYPES.COMPLETE, file_id: fileId, page_count: outline.slides.length, html: fullHtml });
+          send({ type: SSE_EVENT_TYPES.COMPLETE, file_id: fileId, page_count: outline.slides.length, html: fullHtml, pages: singlePageHtmls });
           controller.close();
         } catch (error) {
           console.error('Stream error:', error);

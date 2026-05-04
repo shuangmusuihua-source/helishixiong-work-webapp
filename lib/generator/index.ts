@@ -19,6 +19,47 @@ export type StreamCallback = (event: {
   error?: string;
 }) => void;
 
+// 生成单页完整 HTML（用于缩略图预览）
+export async function generateSinglePageHtml(
+  slideHtml: string,
+  themeId: string,
+  pageIndex: number,
+  totalPages: number
+): Promise<string> {
+  const stylePath = path.join(process.cwd(), 'templates', themeId, 'style.css');
+  const style = await fs.readFile(stylePath, 'utf-8');
+
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <style>
+    @font-face {
+      font-family: 'Alibaba PuHuiTi';
+      src: url('/fonts/AlibabaPuHuiTi-3/AlibabaPuHuiTi-Regular.ttf') format('truetype');
+      font-weight: normal;
+    }
+    @font-face {
+      font-family: 'Alibaba PuHuiTi';
+      src: url('/fonts/AlibabaPuHuiTi-3/AlibabaPuHuiTi-Bold.ttf') format('truetype');
+      font-weight: bold;
+    }
+    ${style}
+  </style>
+</head>
+<body>
+  <div class="slides-container">
+    ${slideHtml}
+  </div>
+  <script>lucide.createIcons();</script>
+</body>
+</html>`;
+}
+
 export async function generateSlideHtml(
   slide: Slide,
   themeId: string,

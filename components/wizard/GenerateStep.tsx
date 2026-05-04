@@ -120,6 +120,10 @@ export function GenerateStep() {
                 setFileId(data.file_id);
                 setGeneratedHtml(data.html);
                 setPreviewHtml(data.html);
+                // 如果 API 返回了 pages 数组，使用它；否则保持已收集的 slidePages
+                if (data.pages && Array.isArray(data.pages)) {
+                  setSlidePages(data.pages);
+                }
                 setGenerationLogs(prev => [...prev, '🎉 全部完成！']);
                 setGenerating(false);
               }
