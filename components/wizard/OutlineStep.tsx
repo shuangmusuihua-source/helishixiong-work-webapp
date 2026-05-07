@@ -217,11 +217,19 @@ export function OutlineStep() {
       if (response.ok) {
         const data = await response.json();
         const newSlides = [...outline.slides];
-        newSlides[index] = {
-          ...newSlides[index],
-          title: data.title,
-          summary: data.summary,
-        };
+        const currentSlide = newSlides[index];
+        if (currentSlide.page_type === 'content') {
+          newSlides[index] = {
+            ...currentSlide,
+            title: data.title,
+            summary: data.summary,
+          };
+        } else {
+          newSlides[index] = {
+            ...currentSlide,
+            title: data.title,
+          };
+        }
         setOutline({ ...outline, slides: newSlides });
       }
     } catch (error) {
@@ -238,6 +246,7 @@ export function OutlineStep() {
       title: '新幻灯片',
       summary: '',
       content_type: 'paragraph',
+      content: {},
     };
 
     const newSlides = [...outline.slides];

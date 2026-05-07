@@ -36,8 +36,6 @@ export const auth = betterAuth({
 
         throw new Error("短信服务暂未配置，请联系管理员");
       },
-      // 验证码有效期（默认 5 分钟）
-      otpExpiry: 60 * 5,
       // 验证码长度
       otpLength: 6,
       // 验证后自动创建用户
@@ -72,11 +70,6 @@ export const auth = betterAuth({
         defaultValue: false,
       },
     },
-  },
-
-  // 高级配置
-  advanced: {
-    generateId: "cuid", // 使用 CUID 生成 ID
   },
 
   // 安全配置
