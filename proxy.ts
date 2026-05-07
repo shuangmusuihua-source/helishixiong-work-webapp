@@ -7,7 +7,7 @@ const publicPaths = ['/', '/login', '/register', '/api/auth'];
 // 需要认证的路径
 const protectedPaths = ['/projects', '/create', '/profile'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Better Auth session cookie name

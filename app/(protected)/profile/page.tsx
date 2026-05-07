@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, User, LogOut, Loader2, Phone, Shield, Calendar } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
@@ -55,12 +56,14 @@ export default function ProfilePage() {
         <div className="card p-8 mb-8">
           {/* Avatar & Name */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-24 h-24 rounded-2xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center mb-4 shadow-lg">
+            <div className="w-24 h-24 rounded-2xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center mb-4 shadow-lg relative">
               {user.image ? (
-                <img
+                <Image
                   src={user.image}
                   alt="avatar"
-                  className="w-full h-full rounded-xl object-cover"
+                  fill
+                  className="rounded-xl object-cover"
+                  sizes="96px"
                 />
               ) : (
                 <User className="h-12 w-12 text-primary" />

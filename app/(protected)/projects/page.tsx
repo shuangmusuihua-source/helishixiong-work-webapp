@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import {
   Plus,
@@ -147,10 +148,12 @@ export default function ProjectsPage() {
                     {/* Cover */}
                     <div className="aspect-video bg-muted relative -mx-6 -mt-6 mb-3">
                       {project.coverImage ? (
-                        <img
+                        <Image
                           src={project.coverImage}
                           alt={project.title}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 33vw"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
