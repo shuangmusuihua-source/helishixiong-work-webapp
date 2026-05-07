@@ -33,6 +33,7 @@ export interface ContentSlide {
   content_type: ContentType;
   summary: string;
   content: SlideContent;
+  context?: string; // 用户补充的上下文信息
 }
 
 // 尾页数据

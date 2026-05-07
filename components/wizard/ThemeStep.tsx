@@ -2,7 +2,7 @@
 
 import { useWizardStore } from '@/store/useWizardStore';
 import { Button } from '@/components/ui/button';
-import { Check, Palette } from 'lucide-react';
+import { Check, Palette, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const themes = [
@@ -54,86 +54,105 @@ export function ThemeStep() {
   if (!outline) {
     return (
       <div className="step-content animate-fade-in">
-        <p className="text-muted-foreground">请先完成大纲编辑</p>
-        <Button onClick={() => setStep(2)} className="mt-4">返回大纲</Button>
+        <div className="text-center py-20">
+          <p className="text-muted-foreground mb-6">请先完成大纲编辑</p>
+          <Button onClick={() => setStep(2)} className="rounded-xl font-semibold">
+            返回大纲
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="step-content animate-fade-in">
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2">
-          <Palette className="h-5 w-5 text-primary" />
-          <h2 className="text-2xl font-bold">选择主题</h2>
+      <div className="mb-10">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-button mb-6">
+          <Palette className="h-4 w-4 text-chart-3" />
+          <span className="text-sm font-medium">视觉风格</span>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <h2 className="text-3xl font-bold mb-3 tracking-tight">选择主题</h2>
+        <p className="text-muted-foreground">
           选择适合您内容的视觉风格
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {themes.map((theme) => (
           <div
             key={theme.id}
             onClick={() => setTheme(theme.id)}
             className={cn(
-              'theme-preview-card cursor-pointer',
-              selectedTheme === theme.id && 'selected'
+              'rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 group',
+              selectedTheme === theme.id
+                ? 'ring-2 ring-primary ring-offset-2 ring-offset-background shadow-xl shadow-primary/20'
+                : 'glass hover:shadow-lg hover:scale-[1.02]'
             )}
           >
             {/* 预览 */}
             <div
-              className="h-28 relative"
+              className="h-36 relative overflow-hidden"
               style={{ background: theme.preview.background }}
             >
               <div
-                className="absolute inset-3 rounded-card"
+                className="absolute inset-4 rounded-xl"
                 style={{
                   backgroundColor: theme.preview.cardBg,
                   backdropFilter: 'blur(8px)',
                 }}
               >
-                <div className="p-2.5">
+                <div className="p-3">
                   <div
-                    className="h-2 w-14 rounded mb-1.5"
+                    className="h-2.5 w-16 rounded mb-2"
                     style={{ backgroundColor: theme.preview.primary }}
                   />
-                  <div className="h-1.5 w-20 bg-gray-300/40 rounded mb-2" />
-                  <div className="space-y-1">
+                  <div className="h-1.5 w-24 bg-gray-300/40 rounded mb-3" />
+                  <div className="space-y-1.5">
                     <div className="h-1 w-full bg-gray-200/40 rounded" />
-                    <div className="h-1 w-3/4 bg-gray-200/40 rounded" />
+                    <div className="h-1 w-4/5 bg-gray-200/40 rounded" />
+                    <div className="h-1 w-3/5 bg-gray-200/40 rounded" />
                   </div>
                 </div>
               </div>
 
               {selectedTheme === theme.id && (
-                <div className="absolute top-2.5 right-2.5">
+                <div className="absolute top-3 right-3">
                   <div
-                    className="w-5 h-5 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: theme.preview.primary, boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}
+                    className="w-6 h-6 rounded-full flex items-center justify-center shadow-lg"
+                    style={{ backgroundColor: theme.preview.primary }}
                   >
-                    <Check className="h-3 w-3 text-white" />
+                    <Check className="h-3.5 w-3.5 text-white" />
                   </div>
                 </div>
               )}
+
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
 
             {/* 信息 */}
-            <div className="p-4">
-              <h3 className="font-semibold text-sm mb-0.5">{theme.name}</h3>
+            <div className="p-4 glass">
+              <h3 className="font-semibold mb-1">{theme.name}</h3>
               <p className="text-xs text-muted-foreground">{theme.description}</p>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="flex justify-between mt-8">
-        <Button variant="outline" onClick={() => setStep(2)}>
+      <div className="flex justify-between mt-10">
+        <Button
+          variant="outline"
+          onClick={() => setStep(2)}
+          className="h-11 px-6 rounded-xl font-medium"
+        >
           返回
         </Button>
-        <Button onClick={() => setStep(4)} className="btn-primary-glow">
+        <Button
+          onClick={() => setStep(4)}
+          className="h-11 px-8 rounded-xl font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all"
+        >
           下一步：生成
+          <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
     </div>

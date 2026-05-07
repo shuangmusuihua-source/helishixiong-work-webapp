@@ -1,110 +1,115 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, User, LogOut, Loader2 } from 'lucide-react';
-
-interface UserInfo {
-  id: string;
-  phone: string;
-  name: string | null;
-  avatar: string | null;
-}
+import { ArrowLeft, User, LogOut, Loader2, Phone, Shield, Calendar } from 'lucide-react';
+import { authClient } from '@/lib/auth-client';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [user, setUser] = useState<UserInfo | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch('/api/auth/me')
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.user) {
-          router.push('/login');
-          return;
-        }
-        setUser(data.user);
-      })
-      .finally(() => setLoading(false));
-  }, [router]);
+  const { data: session, isPending } = authClient.useSession();
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/login');
+    await authClient.signOut();
+    router.push('/');
   };
 
-  if (loading) {
+  if (isPending) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen">
-      {/* 背景 */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-muted" />
-      </div>
+  if (!session) {
+    router.push('/?auth=login');
+    return null;
+  }
 
-      {/* 顶部导航 */}
-      <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-lg">
-        <div className="px-4 h-12 flex items-center">
-          <Link href="/">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              返回
+  const user = session.user;
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+        <div className="container h-16 flex items-center">
+          <Link href="/projects">
+            <Button variant="ghost" size="sm" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              返回项目
             </Button>
           </Link>
         </div>
       </header>
 
-      {/* 主内容 */}
-      <main className="container mx-auto px-4 py-8 max-w-md">
-        <h1 className="text-xl font-semibold mb-6">用户中心</h1>
+      {/* Main Content */}
+      <main className="container py-12 max-w-md">
+        <div className="text-center mb-10">
+          <h1 className="text-3xl font-bold mb-2">用户中心</h1>
+          <p className="text-muted-foreground">管理你的账户信息</p>
+        </div>
 
-        {/* 用户信息卡片 */}
-        <div className="glass-card p-6 mb-6">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-              {user?.avatar ? (
+        {/* User Card */}
+        <div className="card p-8 mb-8">
+          {/* Avatar & Name */}
+          <div className="flex flex-col items-center mb-8">
+            <div className="w-24 h-24 rounded-2xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center mb-4 shadow-lg">
+              {user.image ? (
                 <img
-                  src={user.avatar}
+                  src={user.image}
                   alt="avatar"
-                  className="w-full h-full rounded-full object-cover"
+                  className="w-full h-full rounded-xl object-cover"
                 />
               ) : (
-                <User className="h-8 w-8 text-primary" />
+                <User className="h-12 w-12 text-primary" />
               )}
             </div>
-            <div>
-              <h2 className="font-medium text-lg">
-                {user?.name || `用户${user?.phone?.slice(-4)}`}
-              </h2>
-              <p className="text-sm text-muted-foreground">{user?.phone}</p>
-            </div>
+            <h2 className="text-xl font-bold mb-1">
+              {user.name || `用户${user.phoneNumber?.slice(-4)}`}
+            </h2>
+            <p className="text-sm text-muted-foreground">{user.phoneNumber}</p>
           </div>
 
-          <div className="space-y-3 text-sm">
-            <div className="flex justify-between py-2 border-b border-border/40">
-              <span className="text-muted-foreground">手机号</span>
-              <span>{user?.phone}</span>
+          {/* Info List */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+              <div className="flex items-center gap-3">
+                <Phone className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">手机号</span>
+              </div>
+              <span className="text-sm font-semibold">{user.phoneNumber}</span>
             </div>
-            <div className="flex justify-between py-2 border-b border-border/40">
-              <span className="text-muted-foreground">用户 ID</span>
-              <span className="font-mono text-xs">{user?.id}</span>
+
+            <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+              <div className="flex items-center gap-3">
+                <Shield className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">用户 ID</span>
+              </div>
+              <span className="text-xs font-mono text-muted-foreground">
+                {user.id?.slice(0, 8)}...
+              </span>
             </div>
+
+            {user.createdAt && (
+              <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">注册时间</span>
+                </div>
+                <span className="text-sm">
+                  {new Date(user.createdAt).toLocaleDateString('zh-CN')}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* 操作按钮 */}
+        {/* Logout Button */}
         <Button
           variant="outline"
-          className="w-full"
+          className="w-full h-12 border-destructive/30 bg-destructive/5 text-destructive hover:bg-destructive/10 hover:border-destructive/50"
           onClick={handleLogout}
         >
           <LogOut className="h-4 w-4 mr-2" />

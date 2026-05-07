@@ -1,15 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Zap, Wand2, ArrowRight, Play, Layers, Palette, X } from 'lucide-react';
+import {
+  Sparkles,
+  Wand2,
+  ArrowRight,
+  Play,
+  Zap,
+  Layers,
+  Palette,
+  Download,
+  ChevronRight,
+  X,
+  Check,
+  Star,
+  Users,
+  Clock,
+  FileText,
+  Presentation,
+} from 'lucide-react';
 import { AuthForm } from '@/components/auth/AuthForm';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
+import { cn } from '@/lib/utils';
 
 export default function LandingPage() {
   const router = useRouter();
   const [showAuth, setShowAuth] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   const handleAuthSuccess = () => {
     setShowAuth(false);
@@ -17,131 +41,179 @@ export default function LandingPage() {
   };
 
   return (
-    <main className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* 背景 */}
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-muted" />
-          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-primary/8 rounded-full blur-3xl" />
-        </div>
+    <main className="min-h-screen bg-background">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-xl border-b border-border/50">
+        <div className="container h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-xl group-hover:shadow-primary/30 transition-all">
+              <Sparkles className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold text-lg tracking-tight">河狸师兄</span>
+              <span className="text-xs text-muted-foreground hidden sm:block">AI Slides Generator</span>
+            </div>
+          </Link>
 
-        <div className="container mx-auto px-4 py-20">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="hidden md:flex items-center gap-8">
+            <NavLink href="#features">功能</NavLink>
+            <NavLink href="#how-it-works">工作流程</NavLink>
+            <NavLink href="#pricing">定价</NavLink>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Link href="/projects">
+              <Button variant="ghost" size="sm" className="hidden sm:flex">
+                登录
+              </Button>
+            </Link>
+            <Button size="sm" onClick={() => setShowAuth(true)} className="bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all">
+              免费开始
+            </Button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-6">
+        <div className="container">
+          <div className={cn(
+            "max-w-4xl mx-auto text-center transition-all duration-700",
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          )}>
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
-              <Sparkles className="h-4 w-4" />
-              AI 驱动的专业幻灯片生成工具
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 mb-8">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-primary">AI驱动的专业幻灯片生成</span>
             </div>
 
-            {/* Title */}
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight leading-tight">
-              让创意
-              <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-                瞬间成真
-              </span>
+            {/* Headline */}
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight">
+              输入话题
+              <br />
+              <span className="gradient-text">AI自动生成</span>
+              <br />
+              专业幻灯片
             </h1>
 
-            {/* Subtitle */}
-            <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-              输入话题，AI 自动生成专业级幻灯片
-              <br className="hidden md:block" />
-              分钟级完成，一键导出
+            {/* Subheadline */}
+            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
+              分钟级完成，一键导出。告别繁琐的幻灯片制作流程，
+              让创意瞬间成真。
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
               <Button
                 size="lg"
-                className="text-lg px-10 py-6 rounded-2xl btn-primary-glow h-auto"
+                className="btn-primary h-12 px-8 text-base"
                 onClick={() => setShowAuth(true)}
               >
                 <Wand2 className="mr-2 h-5 w-5" />
-                免费开始
+                免费开始创作
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button variant="outline" size="lg" className="text-lg px-8 py-6 rounded-2xl h-auto">
+              <Button
+                variant="outline"
+                size="lg"
+                className="h-12 px-8 text-base"
+              >
                 <Play className="mr-2 h-5 w-5" />
                 观看演示
               </Button>
             </div>
 
-            {/* Preview Image */}
-            <div className="relative max-w-5xl mx-auto">
-              <div className="glass-card-lg p-2 md:p-4 overflow-hidden">
-                <div className="aspect-video bg-gradient-to-br from-primary/5 to-muted rounded-xl flex items-center justify-center">
+            {/* Social Proof */}
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                <span>10,000+ 用户</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                <span>50,000+ 幻灯片</span>
+              </div>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star key={i} className="h-4 w-4 fill-accent text-accent" />
+                ))}
+                <span className="ml-1">4.9 评分</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Hero Image/Preview */}
+          <div className={cn(
+            "mt-16 max-w-5xl mx-auto transition-all duration-700 delay-200",
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          )}>
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-3xl blur-3xl opacity-60" />
+              <div className="relative bg-card/80 backdrop-blur-xl rounded-2xl border border-border/50 shadow-2xl overflow-hidden">
+                {/* Browser Chrome */}
+                <div className="flex items-center gap-2 px-4 py-3 bg-muted/30 border-b border-border/50">
+                  <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-destructive/60" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
+                    <div className="w-3 h-3 rounded-full bg-accent/60" />
+                  </div>
+                  <div className="flex-1 text-center text-sm text-muted-foreground">
+                    河狸师兄 - AI幻灯片生成
+                  </div>
+                </div>
+                {/* Preview Content */}
+                <div className="aspect-[16/10] bg-gradient-to-br from-muted/50 to-background flex items-center justify-center">
                   <div className="text-center p-8">
-                    <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
-                      <Layers className="h-10 w-10 text-primary" />
+                    <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 flex items-center justify-center">
+                      <Presentation className="h-10 w-10 text-primary" />
                     </div>
-                    <p className="text-muted-foreground">幻灯片预览</p>
+                    <p className="text-muted-foreground font-medium">幻灯片预览区域</p>
+                    <p className="text-sm text-muted-foreground/60 mt-2">输入话题即可生成</p>
                   </div>
                 </div>
               </div>
-              {/* Floating elements */}
-              <div className="absolute -top-4 -left-4 w-24 h-24 bg-primary/20 rounded-2xl blur-xl" />
-              <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-primary/15 rounded-2xl blur-xl" />
             </div>
           </div>
         </div>
-
-        {/* Auth Modal */}
-        {showAuth && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-              onClick={() => setShowAuth(false)}
-            />
-
-            {/* Modal Content */}
-            <div className="relative">
-              <button
-                onClick={() => setShowAuth(false)}
-                className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-              <AuthForm onSuccess={handleAuthSuccess} />
-            </div>
-          </div>
-        )}
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-muted/30">
-        <div className="container mx-auto px-4">
+      <section id="features" className="py-20 px-6 bg-muted/30">
+        <div className="container">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">为什么选择 Kami Slides</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">为什么选择河狸师兄</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              强大的 AI 能力，让幻灯片创作变得简单高效
+              强大的AI能力，让幻灯片创作变得简单高效
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <FeatureCard
-              icon={<Sparkles className="h-6 w-6" />}
-              title="智能内容生成"
-              description="输入话题或文本，AI 自动分析并生成结构化大纲和内容"
-            />
-            <FeatureCard
-              icon={<Palette className="h-6 w-6" />}
-              title="精美主题模板"
-              description="多种专业设计主题，一键切换风格，满足不同场景需求"
-            />
+          <div className="grid md:grid-cols-3 gap-8">
             <FeatureCard
               icon={<Zap className="h-6 w-6" />}
               title="极速生成"
-              description="从输入到完成，分钟级交付，大幅提升工作效率"
+              description="从输入到完成，分钟级交付。AI自动分析内容，生成专业大纲和幻灯片。"
+              delay={0}
+            />
+            <FeatureCard
+              icon={<Palette className="h-6 w-6" />}
+              title="精美主题"
+              description="多种专业设计主题，一键切换风格。支持自定义配色，满足不同场景需求。"
+              delay={100}
+            />
+            <FeatureCard
+              icon={<Download className="h-6 w-6" />}
+              title="一键导出"
+              description="支持HTML、PDF等多种格式导出。直接演示或分享，无需额外工具。"
+              delay={200}
             />
           </div>
         </div>
       </section>
 
-      {/* How it Works */}
-      <section className="py-24">
-        <div className="container mx-auto px-4">
+      {/* How It Works */}
+      <section id="how-it-works" className="py-20 px-6">
+        <div className="container">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">三步完成创作</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -154,69 +226,35 @@ export default function LandingPage() {
               number="01"
               title="输入内容"
               description="输入话题、文本或上传文档"
+              icon={<FileText className="h-5 w-5" />}
             />
             <StepCard
               number="02"
               title="选择主题"
               description="挑选喜欢的视觉风格"
+              icon={<Palette className="h-5 w-5" />}
             />
             <StepCard
               number="03"
               title="生成导出"
-              description="AI 生成并一键下载"
+              description="AI生成并一键下载"
+              icon={<Download className="h-5 w-5" />}
             />
-          </div>
-        </div>
-      </section>
-
-      {/* Themes Preview */}
-      <section className="py-24 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">精美主题</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              多种专业设计主题，满足不同场景
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
-            <ThemePreview name="商务现代" color="from-emerald-400 to-teal-500" />
-            <ThemePreview name="商务深色" color="from-slate-700 to-slate-900" />
-            <ThemePreview name="简约白" color="from-gray-100 to-white" />
-            <ThemePreview name="蓝墨茶" color="from-blue-900 to-indigo-900" />
-          </div>
-        </div>
-      </section>
-
-      {/* Use Cases */}
-      <section className="py-24">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">适用场景</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              无论是工作汇报还是教学演示，Kami Slides 都能帮你轻松应对
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-            <UseCaseCard title="工作汇报" description="周报、月报、项目汇报" />
-            <UseCaseCard title="产品演示" description="产品介绍、方案展示" />
-            <UseCaseCard title="教学课件" description="课程讲义、培训材料" />
-            <UseCaseCard title="商业提案" description="商业计划、投资路演" />
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-b from-primary/5 to-background">
-        <div className="container mx-auto px-4 text-center">
+      <section className="py-20 px-6 bg-primary text-primary-foreground">
+        <div className="container text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">准备好开始了吗？</h2>
-          <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-            免费使用，无需信用卡，立即体验 AI 幻灯片生成的魅力
+          <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
+            免费使用，无需信用卡，立即体验AI幻灯片生成的魅力
           </p>
           <Button
             size="lg"
-            className="text-lg px-10 py-6 rounded-2xl btn-primary-glow h-auto"
+            variant="secondary"
+            className="h-12 px-8 text-base bg-white text-primary hover:bg-white/90"
             onClick={() => setShowAuth(true)}
           >
             <Wand2 className="mr-2 h-5 w-5" />
@@ -227,102 +265,111 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-border/40">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-primary/10">
-                <Sparkles className="h-4 w-4 text-primary" />
+      <footer className="py-12 px-6 border-t border-border">
+        <div className="container">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                <Sparkles className="h-4 w-4 text-primary-foreground" />
               </div>
-              <span className="font-semibold">Kami Slides</span>
+              <span className="font-bold">河狸师兄</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2024 Kami Slides. All rights reserved.
+              © 2024 河狸师兄. All rights reserved.
             </p>
           </div>
         </div>
       </footer>
+
+      {/* Auth Modal */}
+      {showAuth && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+            onClick={() => setShowAuth(false)}
+          />
+          <div className="relative bg-card rounded-2xl shadow-2xl border border-border p-8 w-full max-w-md animate-fade-in-scale">
+            <button
+              onClick={() => setShowAuth(false)}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-primary flex items-center justify-center">
+                <Sparkles className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <h2 className="text-xl font-bold">登录 / 注册</h2>
+              <p className="text-sm text-muted-foreground mt-1">使用手机号快速登录</p>
+            </div>
+            <AuthForm onSuccess={handleAuthSuccess} />
+          </div>
+        </div>
+      )}
     </main>
   );
 }
 
-// Feature Card Component
+// Navigation Link
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+    >
+      {children}
+    </Link>
+  );
+}
+
+// Feature Card
 function FeatureCard({
   icon,
   title,
   description,
+  delay,
 }: {
   icon: React.ReactNode;
   title: string;
   description: string;
+  delay: number;
 }) {
   return (
-    <div className="glass-card p-6 text-center">
-      <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+    <div
+      className="card card-hover p-8 text-center"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className="w-14 h-14 mx-auto mb-6 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center text-primary border border-primary/10">
         {icon}
       </div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
+      <h3 className="text-xl font-bold mb-3">{title}</h3>
+      <p className="text-muted-foreground">{description}</p>
     </div>
   );
 }
 
-// Step Card Component
+// Step Card
 function StepCard({
   number,
   title,
   description,
+  icon,
 }: {
   number: string;
   title: string;
   description: string;
+  icon: React.ReactNode;
 }) {
   return (
-    <div className="text-center">
-      <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold">
+    <div className="card card-hover p-8 text-center relative">
+      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-accent to-emerald-400 text-white text-sm font-bold shadow-lg shadow-accent/25">
         {number}
       </div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-muted-foreground text-sm">{description}</p>
-    </div>
-  );
-}
-
-// Theme Preview Component
-function ThemePreview({
-  name,
-  color,
-}: {
-  name: string;
-  color: string;
-}) {
-  return (
-    <div className="group cursor-pointer">
-      <div className={`aspect-video rounded-xl bg-gradient-to-br ${color} mb-2 group-hover:scale-105 transition-transform shadow-lg`}>
-        <div className="w-full h-full p-3 flex flex-col justify-end">
-          <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2">
-            <div className="h-1.5 w-12 bg-white/60 rounded mb-1" />
-            <div className="h-1 w-8 bg-white/40 rounded" />
-          </div>
-        </div>
+      <div className="w-14 h-14 mx-auto mb-5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center text-primary border border-primary/10">
+        {icon}
       </div>
-      <p className="text-sm font-medium text-center">{name}</p>
-    </div>
-  );
-}
-
-// Use Case Card Component
-function UseCaseCard({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="glass-card p-5 hover:shadow-lg transition-shadow">
-      <h3 className="font-semibold mb-1">{title}</h3>
-      <p className="text-sm text-muted-foreground">{description}</p>
+      <h3 className="text-xl font-bold mb-2">{title}</h3>
+      <p className="text-muted-foreground">{description}</p>
     </div>
   );
 }

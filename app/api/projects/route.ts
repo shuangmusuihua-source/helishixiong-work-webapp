@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 
 // GET - 获取用户的项目列表
 export async function GET(request: NextRequest) {
-  const user = await getCurrentUser();
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
 
-  if (!user) {
+  if (!session?.user) {
     return NextResponse.json({ error: '未登录' }, { status: 401 });
   }
 
   try {
     const projects = await prisma.project.findMany({
       where: {
-        userId: user.id,
+        userId: session.user.id,
       },
       orderBy: { updatedAt: 'desc' },
     });
@@ -34,9 +36,11 @@ export async function GET(request: NextRequest) {
 
 // POST - 创建新项目
 export async function POST(request: NextRequest) {
-  const user = await getCurrentUser();
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
 
-  if (!user) {
+  if (!session?.user) {
     return NextResponse.json({ error: '未登录' }, { status: 401 });
   }
 
@@ -50,7 +54,7 @@ export async function POST(request: NextRequest) {
 
     const project = await prisma.project.create({
       data: {
-        userId: user.id,
+        userId: session.user.id,
         title,
         outline: JSON.stringify(outline),
         themeId,

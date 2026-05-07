@@ -88,15 +88,15 @@ export async function generateSinglePageHtml(
       font-weight: bold;
     }
     ${style}
+    /* Template mode: ensure slide is visible and properly sized */
     .slides-container {
-      width: 1920px;
-      height: 1080px;
+      width: 100%;
+      height: 100%;
       position: relative;
-      transform-origin: top left;
     }
-    section {
-      width: 1920px;
-      height: 1080px;
+    .slide {
+      width: 100%;
+      height: 100%;
       position: absolute;
       top: 0;
       left: 0;
@@ -106,7 +106,7 @@ export async function generateSinglePageHtml(
 </head>
 <body>
   <div class="slides-container">
-    ${slideHtml}
+    ${slideHtml.replace(/class="slide(\s|")/g, 'class="slide active$1')}
   </div>
   <script>lucide.createIcons();</script>
 </body>
@@ -231,7 +231,35 @@ export async function generateSlideHtml(
       onStream({ type: SSE_EVENT_TYPES.AI_COMPLETE });
     }
   } else {
-    // Template theme: use existing generators
+    // Template theme: first generate content via AI, then use template generators
+
+    // Create a stream callback for AI text
+    const streamCallback = onStream
+      ? (token: string) => {
+          try {
+            onStream({ type: SSE_EVENT_TYPES.AI_TEXT, text: token });
+          } catch {
+            // Ignore stream errors
+          }
+        }
+      : undefined;
+
+    // Generate content via AI if not already present
+    if (!contentSlide.content || Object.keys(contentSlide.content).length === 0) {
+      const generatedContent = await generatePageContentStream(
+        { title: contentSlide.title, content_type: contentSlide.content_type!, summary: contentSlide.summary || '' },
+        context || '',
+        streamCallback || (() => {})
+      );
+      contentSlide.content = generatedContent;
+    }
+
+    // Notify AI completion
+    if (onStream) {
+      onStream({ type: SSE_EVENT_TYPES.AI_COMPLETE });
+    }
+
+    // Now use template generators with populated content
     switch (contentSlide.content_type) {
       case 'data-cards':
         html = generateDataCardsSlide(contentSlide, totalPages);

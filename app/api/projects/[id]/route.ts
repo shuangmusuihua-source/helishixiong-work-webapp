@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { getCurrentUser } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 
 // 解析项目 JSON 字段
 function parseProject(project: {
@@ -27,9 +27,11 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getCurrentUser();
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
 
-  if (!user) {
+  if (!session?.user) {
     return NextResponse.json({ error: '未登录' }, { status: 401 });
   }
 
@@ -39,7 +41,7 @@ export async function GET(
     const project = await prisma.project.findFirst({
       where: {
         id,
-        userId: user.id,
+        userId: session.user.id,
       },
     });
 
@@ -59,9 +61,11 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getCurrentUser();
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
 
-  if (!user) {
+  if (!session?.user) {
     return NextResponse.json({ error: '未登录' }, { status: 401 });
   }
 
@@ -69,7 +73,7 @@ export async function DELETE(
 
   try {
     const project = await prisma.project.findFirst({
-      where: { id, userId: user.id },
+      where: { id, userId: session.user.id },
     });
 
     if (!project) {
@@ -92,9 +96,11 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getCurrentUser();
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
 
-  if (!user) {
+  if (!session?.user) {
     return NextResponse.json({ error: '未登录' }, { status: 401 });
   }
 
@@ -104,7 +110,7 @@ export async function PATCH(
     const body = await request.json();
 
     const existingProject = await prisma.project.findFirst({
-      where: { id, userId: user.id },
+      where: { id, userId: session.user.id },
     });
 
     if (!existingProject) {

@@ -24,7 +24,7 @@ export function ExportStep() {
     return (
       <div className="step-content animate-fade-in">
         <p className="text-muted-foreground">请先生成幻灯片</p>
-        <Button onClick={() => setStep(4)} className="mt-4">返回生成</Button>
+        <Button onClick={() => setStep(4)} className="mt-4 rounded-xl">返回生成</Button>
       </div>
     );
   }
@@ -52,12 +52,14 @@ export function ExportStep() {
   };
 
   return (
-    <div className="flex h-full w-full">
+    <div className="export-step-container">
       {/* 左侧面板 */}
-      <div className="w-80 h-full overflow-hidden flex-shrink-0 p-5 bg-sidebar/40">
+      <div className="export-left-panel">
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2">
-            <CheckCircle2 className="h-5 w-5 text-primary" />
+            <div className="p-2 rounded-xl bg-chart-2/20 border border-chart-2/30">
+              <CheckCircle2 className="h-5 w-5 text-chart-2" />
+            </div>
             <h2 className="text-lg font-bold">生成完成</h2>
           </div>
           <p className="text-sm text-muted-foreground">
@@ -65,9 +67,9 @@ export function ExportStep() {
           </p>
         </div>
 
-        <div className="glass-card p-4 mb-4">
+        <div className="p-4 rounded-2xl glass mb-4">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 rounded-card-sm bg-primary/10">
+            <div className="p-2 rounded-lg bg-primary/20 border border-primary/30">
               <Sparkles className="h-5 w-5 text-primary" />
             </div>
             <div>
@@ -91,32 +93,32 @@ export function ExportStep() {
         <div className="space-y-2">
           <Button
             onClick={() => setShowPresenter(true)}
-            className="w-full btn-primary-glow"
+            className="w-full rounded-xl font-semibold shadow-lg shadow-primary/25"
             size="lg"
           >
             <Play className="mr-2 h-4 w-4 fill-current" />
             开始演示
           </Button>
 
-          <Button onClick={handleOpenInNewTab} variant="outline" className="w-full" size="lg">
+          <Button onClick={handleOpenInNewTab} variant="outline" className="w-full rounded-xl" size="lg">
             <ExternalLink className="mr-2 h-4 w-4" />
             在新标签页预览
           </Button>
 
-          <Button onClick={handleDownload} variant="outline" className="w-full" size="lg">
+          <Button onClick={handleDownload} variant="outline" className="w-full rounded-xl" size="lg">
             <Download className="mr-2 h-4 w-4" />
             下载 HTML 文件
           </Button>
         </div>
 
         <div className="flex gap-2 mt-6">
-          <Button variant="outline" onClick={() => setStep(2)} size="sm">
+          <Button variant="outline" onClick={() => setStep(2)} size="sm" className="rounded-xl flex-1">
             修改大纲
           </Button>
-          <Button variant="outline" onClick={() => setStep(3)} size="sm">
+          <Button variant="outline" onClick={() => setStep(3)} size="sm" className="rounded-xl flex-1">
             更换主题
           </Button>
-          <Button variant="ghost" onClick={handleNewSlides} size="sm" className="text-muted-foreground">
+          <Button variant="ghost" onClick={handleNewSlides} size="sm" className="rounded-xl">
             <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
             新建
           </Button>
@@ -124,7 +126,7 @@ export function ExportStep() {
       </div>
 
       {/* 右侧预览 */}
-      <div className="flex-1 flex flex-col h-full min-w-0 bg-muted/10">
+      <div className="export-right-panel">
         {showPresenter ? (
           <PresenterMode onExit={() => setShowPresenter(false)} />
         ) : (

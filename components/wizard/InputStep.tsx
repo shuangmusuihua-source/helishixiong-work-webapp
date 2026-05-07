@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
-import { Loader2, Upload, Sparkles, FileText, Zap } from 'lucide-react';
+import { Loader2, Upload, Sparkles, FileText, Zap, ArrowRight, Globe } from 'lucide-react';
 import type { InputType } from '@/types';
 
 export function InputStep() {
@@ -27,6 +27,9 @@ export function InputStep() {
   const [dragOver, setDragOver] = useState(false);
   const [generationStatus, setGenerationStatus] = useState<string>('');
   const [generationLogs, setGenerationLogs] = useState<string[]>([]);
+  const [fileError, setFileError] = useState<string>('');
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
   const handleContentChange = (value: string) => {
     setLocalContent(value);
@@ -40,9 +43,15 @@ export function InputStep() {
   const handleFileDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
+    setFileError('');
 
     const file = e.dataTransfer.files[0];
     if (file && (file.name.endsWith('.txt') || file.name.endsWith('.md'))) {
+      if (file.size > MAX_FILE_SIZE) {
+        setFileError(`文件大小超出限制（最大 5MB），当前文件 ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (event) => {
         const content = event.target?.result as string;
@@ -50,6 +59,8 @@ export function InputStep() {
         setInput('file', content);
       };
       reader.readAsText(file);
+    } else if (file) {
+      setFileError('仅支持 .txt 和 .md 格式的文件');
     }
   }, [setInput]);
 
@@ -104,19 +115,23 @@ export function InputStep() {
 
   return (
     <div className="step-content animate-fade-in">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-1">创建幻灯片</h2>
-        <p className="text-sm text-muted-foreground">
+      <div className="mb-10">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-button mb-6">
+          <FileText className="h-4 w-4 text-primary" />
+          <span className="text-sm font-medium">内容输入</span>
+        </div>
+        <h2 className="text-3xl font-bold mb-3 tracking-tight">创建幻灯片</h2>
+        <p className="text-muted-foreground">
           输入话题或内容，AI 将自动生成专业幻灯片
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-5 max-w-2xl">
         {/* 输入区 */}
-        <div className="glass-card p-5">
+        <div className="p-6 rounded-2xl glass">
           <div className="flex items-center gap-2 mb-4">
             <FileText className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">输入内容</span>
+            <span className="text-sm font-semibold">输入内容</span>
           </div>
 
           <Textarea
@@ -126,34 +141,38 @@ export function InputStep() {
             onDrop={handleFileDrop}
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
-            className={`min-h-[160px] resize-none input-glow ${dragOver ? 'border-primary border-2' : ''}`}
+            className={`min-h-[180px] resize-none bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 rounded-xl transition-all ${dragOver ? 'border-primary border-2 bg-primary/5' : ''}`}
             disabled={isLoading}
           />
 
-          <div className="flex items-center justify-between mt-3">
+          <div className="flex items-center justify-between mt-4">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Upload className="h-3.5 w-3.5" />
-              <span>支持拖拽 .txt / .md 文件</span>
+              <span>支持拖拽 .txt / .md 文件（最大 5MB）</span>
             </div>
 
             {localContent && !isLoading && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
                 {inputType === 'topic' ? '话题' : inputType === 'text' ? '文本' : '文件'}
               </span>
             )}
           </div>
+
+          {fileError && (
+            <p className="text-destructive text-sm mt-3 px-1">{fileError}</p>
+          )}
         </div>
 
         {/* 联网检索 */}
-        <div className="glass-card p-5">
+        <div className="p-5 rounded-2xl glass">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-card-sm bg-primary/10">
-                <Zap className="h-4 w-4 text-primary" />
+            <div className="flex items-center gap-4">
+              <div className="p-2.5 rounded-xl bg-chart-2/10 border border-chart-2/20">
+                <Globe className="h-5 w-5 text-chart-2" />
               </div>
               <div>
-                <Label htmlFor="search-toggle" className="text-sm font-medium">联网检索</Label>
-                <p className="text-xs text-muted-foreground">为话题补充相关资料</p>
+                <Label htmlFor="search-toggle" className="text-sm font-semibold">联网检索</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">为话题补充相关资料</p>
               </div>
             </div>
             <Switch
@@ -167,15 +186,20 @@ export function InputStep() {
 
         {/* 生成进度 */}
         {isLoading && (
-          <div className="glass-card p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              <span className="text-sm font-medium">{generationStatus}</span>
+          <div className="p-6 rounded-2xl glass border-primary/20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="relative">
+                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              </div>
+              <span className="text-sm font-semibold">{generationStatus}</span>
             </div>
-            <Progress value={66} className="h-1 progress-glow" />
-            <div className="mt-3 space-y-0.5 font-mono text-xs text-muted-foreground">
+            <Progress value={66} className="h-1.5" />
+            <div className="mt-4 space-y-1 font-mono text-xs text-muted-foreground">
               {generationLogs.map((log, idx) => (
-                <div key={idx} className={log.includes('✅') ? 'text-primary' : ''}>
+                <div
+                  key={idx}
+                  className={`transition-colors ${log.includes('✅') ? 'text-chart-2' : log.includes('❌') ? 'text-destructive' : ''}`}
+                >
                   {log}
                 </div>
               ))}
@@ -184,7 +208,7 @@ export function InputStep() {
         )}
 
         {/* 按钮 */}
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-3 pt-2">
           <Button
             variant="outline"
             onClick={() => {
@@ -192,6 +216,7 @@ export function InputStep() {
               setInput('topic', '');
             }}
             disabled={!localContent || isLoading}
+            className="h-11 px-6 rounded-xl font-medium"
           >
             清空
           </Button>
@@ -199,7 +224,7 @@ export function InputStep() {
             onClick={handleSubmit}
             disabled={!localContent || isLoading}
             size="lg"
-            className="btn-primary-glow"
+            className="h-11 px-8 rounded-xl font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all"
           >
             {isLoading ? (
               <>

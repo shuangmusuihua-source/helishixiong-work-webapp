@@ -169,7 +169,7 @@ export function HtmlSlidePreview({ html, className }: { html: string; className?
             ref={iframeRef}
             className="w-full h-full border-0"
             title="幻灯片预览"
-            sandbox="allow-scripts allow-same-origin"
+            sandbox="allow-same-origin"
           />
         </div>
       </div>

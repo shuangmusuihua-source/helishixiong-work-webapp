@@ -10,16 +10,70 @@ datasource db {
   url      = "file:./dev.db"
 }
 
+// Better Auth required models
 model User {
   id        String    @id @default(cuid())
-  phone     String    @unique
   name      String?
-  avatar    String?
+  email     String?   @unique
+  emailVerified Boolean?
+  image     String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  // Phone number fields (for better-auth phone-number plugin)
+  phoneNumber         String?   @unique
+  phoneNumberVerified Boolean?  @default(false)
+
+  // Relations
+  sessions  Session[]
+  accounts  Account[]
   projects  Project[]
 }
 
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+
+  @@index([userId])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  accountId         String
+  providerId        String
+  userId            String
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken       String?
+  refreshToken      String?
+  idToken           String?
+  expiresAt         DateTime?
+  password          String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, value])
+}
+
+// Application models
 model Project {
   id          String    @id @default(cuid())
   userId      String
@@ -34,14 +88,4 @@ model Project {
   updatedAt   DateTime  @updatedAt
 
   @@index([userId])
-}
-
-model VerificationCode {
-  id        String   @id @default(cuid())
-  phone     String
-  code      String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  @@index([phone])
 }

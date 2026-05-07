@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sparkles, ArrowLeft, Loader2, Phone, KeyRound } from 'lucide-react';
+import { ArrowLeft, Loader2, Phone, KeyRound, ShieldCheck } from 'lucide-react';
+import { authClient } from '@/lib/auth-client';
 
 interface AuthFormProps {
   onSuccess: () => void;
@@ -28,21 +29,17 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
     setError('');
 
     try {
-      const res = await fetch('/api/auth/send-code', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
+      const result = await authClient.phoneNumber.sendOtp({
+        phoneNumber: phone,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || '发送验证码失败');
+      if (result.error) {
+        setError(result.error.message || '发送验证码失败');
         return;
       }
 
       setStep('code');
-    } catch {
+    } catch (err) {
       setError('发送验证码失败');
     } finally {
       setLoading(false);
@@ -59,22 +56,19 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
     setError('');
 
     try {
-      const res = await fetch('/api/auth/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, code }),
+      const result = await authClient.phoneNumber.verify({
+        phoneNumber: phone,
+        code,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || '登录失败');
+      if (result.error) {
+        setError(result.error.message || '登录失败');
         return;
       }
 
       onSuccess();
       router.push('/projects');
-    } catch {
+    } catch (err) {
       setError('登录失败');
     } finally {
       setLoading(false);
@@ -82,94 +76,98 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
   };
 
   return (
-    <div className="glass-card p-6 w-full max-w-sm">
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-3">
-          <Sparkles className="h-3.5 w-3.5" />
-          Kami Slides
-        </div>
-        <h2 className="text-xl font-semibold">
-          {step === 'phone' ? '登录 / 注册' : '输入验证码'}
-        </h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          {step === 'phone' ? '使用手机号快速登录' : `验证码已发送至 ${phone}`}
-        </p>
-      </div>
-
+    <div className="w-full">
       {step === 'phone' ? (
-        <div className="space-y-4">
+        <div className="space-y-5">
+          {/* Phone Input */}
           <div className="relative">
-            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               type="tel"
               placeholder="请输入手机号"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               maxLength={11}
-              className="pl-10"
+              className="input pl-12 h-12"
             />
           </div>
 
-          {error && <p className="text-destructive text-sm">{error}</p>}
+          {/* Error */}
+          {error && (
+            <p className="text-destructive text-sm px-1">{error}</p>
+          )}
 
+          {/* Submit */}
           <Button
-            className="w-full btn-primary-glow"
+            className="btn-primary w-full h-12"
             onClick={handleSendCode}
             disabled={loading}
           >
             {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
-              '获取验证码'
+              <>
+                <ShieldCheck className="h-4 w-4 mr-2" />
+                获取验证码
+              </>
             )}
           </Button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
+          {/* Code Input */}
           <div className="relative">
-            <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               type="text"
               placeholder="请输入6位验证码"
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               maxLength={6}
-              className="pl-10"
+              className="input pl-12 h-12"
             />
           </div>
 
-          {error && <p className="text-destructive text-sm">{error}</p>}
+          {/* Error */}
+          {error && (
+            <p className="text-destructive text-sm px-1">{error}</p>
+          )}
 
+          {/* Submit */}
           <Button
-            className="w-full btn-primary-glow"
+            className="btn-primary w-full h-12"
             onClick={handleVerify}
             disabled={loading}
           >
             {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               '登录'
             )}
           </Button>
 
+          {/* Back */}
           <Button
             variant="ghost"
-            className="w-full"
+            className="w-full h-11"
             onClick={() => {
               setStep('phone');
               setCode('');
               setError('');
             }}
           >
-            <ArrowLeft className="h-4 w-4 mr-1" />
+            <ArrowLeft className="h-4 w-4 mr-2" />
             返回修改手机号
           </Button>
         </div>
       )}
 
-      <p className="text-center text-xs text-muted-foreground mt-4">
-        开发阶段验证码：123456
-      </p>
+      {/* Dev Hint */}
+      <div className="mt-6 p-3 rounded-xl bg-muted/50 border border-border text-center">
+        <p className="text-xs text-muted-foreground">
+          开发阶段验证码查看控制台输出
+        </p>
+      </div>
     </div>
   );
 }

@@ -1,117 +1,91 @@
-import jwt from 'jsonwebtoken';
-import { cookies } from 'next/headers';
-import { prisma } from './db';
-import type { User } from '@prisma/client';
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { PrismaClient } from "@prisma/client";
+import { phoneNumber } from "better-auth/plugins/phone-number";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'kami-slides-secret-key';
-const COOKIE_NAME = 'kami_session';
+const prisma = new PrismaClient();
 
-export interface SessionUser {
-  id: string;
-  phone: string;
-  name: string | null;
-  avatar: string | null;
-}
+export const auth = betterAuth({
+  // 应用配置
+  appName: "河狸师兄",
 
-// 创建 JWT Token
-export function createToken(user: User): string {
-  return jwt.sign(
-    {
-      id: user.id,
-      phone: user.phone,
-      name: user.name,
-      avatar: user.avatar,
+  // 数据库配置 - 使用 Prisma 适配器
+  database: prismaAdapter(prisma, {
+    provider: "sqlite",
+  }),
+
+  // 邮箱密码登录（可选，作为备用登录方式）
+  emailAndPassword: {
+    enabled: true,
+  },
+
+  // 手机号插件
+  plugins: [
+    phoneNumber({
+      // 发送验证码
+      sendOTP: async ({ phoneNumber: phone, code }, request) => {
+        // 开发环境：打印验证码到控制台
+        if (process.env.NODE_ENV === "development") {
+          console.log(`[DEV] 验证码已发送到 ${phone}: ${code}`);
+          return;
+        }
+
+        // TODO: 生产环境集成短信服务商
+        // 例如：阿里云短信、腾讯云短信等
+        // await sendSMS(phone, `您的验证码是：${code}，5分钟内有效`);
+
+        throw new Error("短信服务暂未配置，请联系管理员");
+      },
+      // 验证码有效期（默认 5 分钟）
+      otpExpiry: 60 * 5,
+      // 验证码长度
+      otpLength: 6,
+      // 验证后自动创建用户
+      signUpOnVerification: {
+        getTempEmail: (phoneNumber) => `${phoneNumber}@temp.helishixiong.com`,
+        getTempName: (phoneNumber) => `用户${phoneNumber.slice(-4)}`,
+      },
+    }),
+  ],
+
+  // Session 配置
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 天
+    updateAge: 60 * 60 * 24, // 每天更新一次
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 5, // 5 分钟缓存
     },
-    JWT_SECRET,
-    { expiresIn: '7d' }
-  );
-}
+  },
 
-// 验证 JWT Token
-export function verifyToken(token: string): SessionUser | null {
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as SessionUser;
-    return decoded;
-  } catch {
-    return null;
-  }
-}
-
-// 获取当前用户（从 Cookie）
-export async function getCurrentUser(): Promise<SessionUser | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
-
-  if (!token) return null;
-
-  const user = verifyToken(token);
-  if (!user) return null;
-
-  // 验证用户是否仍然存在
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-  });
-
-  if (!dbUser) return null;
-
-  return user;
-}
-
-// 设置 Session Cookie
-export async function setSessionCookie(token: string) {
-  const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60, // 7 days
-    path: '/',
-  });
-}
-
-// 清除 Session Cookie
-export async function clearSessionCookie() {
-  const cookieStore = await cookies();
-  cookieStore.delete(COOKIE_NAME);
-}
-
-// 生成验证码（模拟）
-export function generateVerificationCode(): string {
-  // 开发阶段固定为 123456
-  return '123456';
-}
-
-// 验证验证码
-export async function verifyCode(phone: string, code: string): Promise<boolean> {
-  // 开发阶段接受固定验证码
-  if (code === '123456') return true;
-
-  // 生产环境需要查询数据库
-  const record = await prisma.verificationCode.findFirst({
-    where: {
-      phone,
-      code,
-      expiresAt: { gt: new Date() },
+  // 用户配置
+  user: {
+    additionalFields: {
+      phoneNumber: {
+        type: "string",
+        required: false,
+        unique: true,
+      },
+      phoneNumberVerified: {
+        type: "boolean",
+        required: false,
+        defaultValue: false,
+      },
     },
-    orderBy: { createdAt: 'desc' },
-  });
+  },
 
-  return !!record;
-}
+  // 高级配置
+  advanced: {
+    generateId: "cuid", // 使用 CUID 生成 ID
+  },
 
-// 保存验证码到数据库
-export async function saveVerificationCode(phone: string, code: string) {
-  // 删除旧的验证码
-  await prisma.verificationCode.deleteMany({
-    where: { phone },
-  });
+  // 安全配置
+  rateLimit: {
+    enabled: true,
+    window: 60, // 60 秒窗口
+    max: 5, // 最多 5 次请求
+  },
+});
 
-  // 创建新验证码（5分钟有效期）
-  await prisma.verificationCode.create({
-    data: {
-      phone,
-      code,
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
-    },
-  });
-}
+// 导出类型
+export type Auth = typeof auth;

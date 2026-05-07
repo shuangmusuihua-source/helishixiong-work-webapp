@@ -10,8 +10,8 @@ const protectedPaths = ['/projects', '/create', '/profile'];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 获取 session cookie
-  const token = request.cookies.get('kami_session')?.value;
+  // Better Auth session cookie name
+  const sessionToken = request.cookies.get('better-auth.session_token')?.value;
 
   // 检查是否是公开路径
   const isPublic = publicPaths.some((path) =>
@@ -27,16 +27,17 @@ export function middleware(request: NextRequest) {
   const isApiPath = pathname.startsWith('/api');
   const isAuthApi = pathname.startsWith('/api/auth');
 
-  // 如果没有 token
-  if (!token) {
+  // 如果没有 session token
+  if (!sessionToken) {
     // API 返回 401
     if (isApiPath && !isAuthApi) {
       return NextResponse.json({ error: '未登录' }, { status: 401 });
     }
 
-    // 页面重定向到登录页
-    const loginUrl = new URL('/login', request.url);
-    return NextResponse.redirect(loginUrl);
+    // 页面重定向到首页（带有登录弹窗）
+    const homeUrl = new URL('/', request.url);
+    homeUrl.searchParams.set('auth', 'login');
+    return NextResponse.redirect(homeUrl);
   }
 
   return NextResponse.next();

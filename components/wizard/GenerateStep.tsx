@@ -156,8 +156,12 @@ export function GenerateStep() {
   if (!outline) {
     return (
       <div className="step-content">
-        <p className="text-muted-foreground">请先完成主题选择</p>
-        <Button onClick={() => setStep(workMode === 'advanced' ? 3 : 3)} className="mt-4">返回</Button>
+        <div className="text-center py-20">
+          <p className="text-muted-foreground mb-6">请先完成主题选择</p>
+          <Button onClick={() => setStep(workMode === 'advanced' ? 3 : 3)} className="rounded-xl font-semibold">
+            返回
+          </Button>
+        </div>
       </div>
     );
   }
@@ -166,72 +170,83 @@ export function GenerateStep() {
   const isActivelyGenerating = isGenerating || (slidePages.length === 0 && !error);
 
   return (
-    <div className="flex h-full w-full">
+    <div className="generate-step-container">
       {/* 左侧面板 */}
-      <div className="w-80 h-full overflow-y-auto flex-shrink-0 p-5 bg-sidebar/40 border-r border-border/50 flex flex-col">
+      <div className="generate-left-panel flex flex-col">
         {/* 标题 */}
-        <div className="flex items-center gap-2 mb-5">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <h2 className="text-lg font-semibold">生成预览</h2>
+        <div className="flex items-center gap-4 mb-8">
+          <div className="p-3 rounded-xl bg-primary/20 border-2 border-primary/30 shadow-lg shadow-primary/10">
+            <Sparkles className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">生成预览</h2>
+            <p className="text-sm text-muted-foreground">实时查看生成进度</p>
+          </div>
         </div>
 
         {/* 进度卡片 */}
-        <div className="glass-card p-4 mb-4">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="p-6 rounded-2xl bg-white border-2 border-primary/20 shadow-xl shadow-primary/5 mb-6">
+          <div className="flex items-center gap-3 mb-4">
             {isActivelyGenerating ? (
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <div className="relative">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+              </div>
             ) : (
-              <CheckCircle2 className="h-4 w-4 text-primary" />
+              <div className="w-6 h-6 rounded-full bg-chart-2 flex items-center justify-center shadow-lg shadow-chart-2/30">
+                <CheckCircle2 className="h-5 w-5 text-white" />
+              </div>
             )}
-            <span className="text-sm font-medium">
+            <span className="text-base font-bold">
               {isActivelyGenerating ? '正在生成...' : '生成完成'}
             </span>
           </div>
-          <div className="flex justify-between text-xs text-muted-foreground mb-2">
-            <span className="truncate mr-2">{currentPageTitle || '准备中...'}</span>
-            <span className="font-medium">{generatedPages}/{totalPages}</span>
+          <div className="flex justify-between text-sm mb-3">
+            <span className="truncate mr-2 font-semibold text-foreground">{currentPageTitle || '准备中...'}</span>
+            <span className="font-bold text-primary">{generatedPages}/{totalPages}</span>
           </div>
-          <Progress value={progress} className="h-1.5 progress-glow" />
+          <Progress value={progress} className="h-3" />
         </div>
 
         {/* AI 输出 */}
         {aiStreamingText && (
-          <div className="glass-card glass-card-sm p-3 mb-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Loader2 className="h-3 w-3 animate-spin text-primary" />
-              <span className="text-xs font-medium text-primary">AI 思考中</span>
+          <div className="p-5 rounded-2xl bg-white border border-primary/20 shadow-lg mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <span className="text-sm font-bold text-primary">AI 思考中</span>
             </div>
-            <div className="font-mono text-xs text-muted-foreground max-h-20 overflow-y-auto whitespace-pre-wrap break-all">
-              {aiStreamingText.slice(-150)}
+            <div className="font-mono text-xs text-muted-foreground max-h-32 overflow-y-auto whitespace-pre-wrap break-all bg-muted/50 p-3 rounded-lg">
+              {aiStreamingText.slice(-300)}
             </div>
           </div>
         )}
 
         {/* 日志 */}
-        <div className="mb-4">
-          <span className="text-xs text-muted-foreground mb-2 block">生成日志</span>
-          <div className="log-area p-3 h-32 overflow-y-auto">
+        <div className="mb-6">
+          <span className="text-sm font-bold text-foreground mb-3 block">生成日志</span>
+          <div className="p-4 h-40 overflow-y-auto rounded-2xl bg-white border border-border shadow-sm">
             {displayLogs.map((log, idx) => (
               <div
                 key={idx}
                 className={cn(
-                  'text-xs py-0.5',
-                  log.includes('✅') || log.includes('🎉') ? 'text-primary' :
-                  log.includes('❌') ? 'text-destructive' : 'text-muted-foreground'
+                  'text-sm py-1 font-mono',
+                  log.includes('✅') || log.includes('🎉') ? 'text-chart-2 font-semibold' :
+                  log.includes('❌') ? 'text-destructive font-semibold' : 'text-muted-foreground'
                 )}
               >
                 {log}
               </div>
             ))}
             {isActivelyGenerating && (
-              <div className="animate-pulse text-primary text-xs">▊</div>
+              <div className="animate-pulse text-primary text-sm mt-1 font-bold">▊</div>
             )}
           </div>
         </div>
 
         {/* 页面网格 */}
-        <div className="mb-4">
-          <div className="grid grid-cols-6 gap-1.5">
+        <div className="mb-8">
+          <span className="text-sm font-bold text-foreground mb-3 block">页面进度</span>
+          <div className="grid grid-cols-5 gap-3">
             {outline.slides.map((_, idx) => (
               <div
                 key={idx}
@@ -248,31 +263,31 @@ export function GenerateStep() {
         </div>
 
         {/* 按钮 */}
-        <div className="flex gap-2 mt-auto">
+        <div className="flex gap-4 mt-auto">
           <Button
             variant="outline"
-            size="sm"
+            size="lg"
             onClick={() => setStep(workMode === 'advanced' ? 4 : 3)}
-            className="flex-1"
+            className="flex-1 h-12 rounded-xl font-semibold border-2"
           >
-            <ArrowLeft className="h-4 w-4 mr-1" />
+            <ArrowLeft className="h-5 w-5 mr-2" />
             返回
           </Button>
           {!isActivelyGenerating && slidePages.length > 0 && (
             <Button
-              size="sm"
+              size="lg"
               onClick={() => setStep(workMode === 'advanced' ? 6 : 5)}
-              className="flex-1 btn-primary-glow"
+              className="flex-1 h-12 rounded-xl font-bold shadow-xl shadow-primary/30"
             >
               下一步
-              <ArrowRight className="h-4 w-4 ml-1" />
+              <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
           )}
         </div>
       </div>
 
       {/* 右侧预览 */}
-      <div className="flex-1 h-full min-w-0 flex flex-col bg-muted/10">
+      <div className="generate-right-panel">
         {showPresenter ? (
           <PresenterMode onExit={() => setShowPresenter(false)} />
         ) : (
