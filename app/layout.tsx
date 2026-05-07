@@ -36,7 +36,7 @@ export default function RootLayout({
           }
         `}} />
         {/* Theme Script - Prevent Flash */}
-        <script dangerouslySetInnerHTML={{ __html: `
+        <script id="theme-init" dangerouslySetInnerHTML={{ __html: `
           (function() {
             try {
               var theme = localStorage.getItem('theme');
